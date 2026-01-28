@@ -1,0 +1,29 @@
+{
+  "name": "coffesmile",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": "24.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "dev:admin": "pnpm --filter admin dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "start": "turbo run start",
+    "test": "pnpm --filter api test",
+    "test:e2e": "pnpm --filter web test:e2e",
+    "db:reset": "node scripts/db-reset.mjs",
+    "db:migrate": "pnpm --filter api prisma migrate dev --name init",
+    "db:seed": "pnpm --filter api prisma db seed"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "glob": "10.5.0"
+    }
+  }
+}

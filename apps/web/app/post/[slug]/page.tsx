@@ -1,0 +1,210 @@
+import type { Metadata } from 'next';
+import Script from 'next/script';
+import Image from 'next/image';
+import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+import { BookBox } from '@/components/BookBox';
+import { BookTechnicalSheet } from '@/components/BookTechnicalSheet';
+import { LayoutShell } from '@/components/LayoutShell';
+import { PageHero } from '@/components/PageHero';
+import { Sidebar } from '@/components/Sidebar';
+import { getCloudinaryImageUrl } from '@/lib/cloudinary';
+import { getCategories, getPost, getPosts } from '@/lib/api';
+import { deriveCategoriesFromPosts } from '@/lib/categories';
+import { formatDate } from '@/lib/format';
+import { absoluteUrl, defaultOgImage } from '@/lib/site';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  try {
+    const postResponse = await getPost(params.slug);
+    const post = postResponse.data;
+    const canonical = absoluteUrl(`/post/${post.slug}`);
+    const description = post.excerpt;
+    const coverImageUrl = post.coverImageUrl
+      ? post.coverImageUrl.startsWith('http')
+        ? post.coverImageUrl
+        : absoluteUrl(post.coverImageUrl)
+      : null;
+    const ogImages = coverImageUrl
+      ? [
+          {
+            url: coverImageUrl,
+            width: 1200,
+            height: 630,
+            alt: post.title,
+          },
+        ]
+      : [defaultOgImage];
+    const fallbackOg = absoluteUrl(defaultOgImage.url);
+    const shouldNoIndex = post.status !== 'published';
+
+    return {
+      title: post.title,
+      description,
+      alternates: {
+        canonical,
+      },
+      openGraph: {
+        title: post.title,
+        description,
+        type: 'article',
+        locale: 'pt_PT',
+        url: canonical,
+        images: ogImages,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: post.title,
+        description,
+        images: [coverImageUrl ?? fallbackOg],
+      },
+      robots: shouldNoIndex ? { index: false, follow: false } : undefined,
+    };
+  } catch {
+    const canonical = absoluteUrl(`/post/${params.slug}`);
+    return {
+      title: 'Post nao encontrado',
+      alternates: {
+        canonical,
+      },
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+}
+
+export default async function PostPage({ params }: { params: { slug: string } }) {
+  const postResponse = await getPost(params.slug);
+  const post = postResponse.data;
+  const coverImage =
+    getCloudinaryImageUrl(post.coverImageUrl, 'hero') || '/images/cover-default.svg';
+
+  const [categoriesResponse, recentPostsResponse] = await Promise.all([
+    getCategories(),
+    getPosts({ sort: 'recent', limit: 5 }),
+  ]);
+
+  const categories =
+    categoriesResponse.data.length > 0
+      ? categoriesResponse.data
+      : deriveCategoriesFromPosts([post, ...recentPostsResponse.data]);
+  const relatedPosts = post.relatedPosts ?? [];
+  const tagsSource = relatedPosts.length > 0 ? relatedPosts : [post];
+  const tags = Array.from(new Set(tagsSource.flatMap((item) => item.tags)));
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.publishedAt,
+    author: {
+      '@type': 'Person',
+      name: post.author,
+    },
+  };
+
+  return (
+    <>
+      <PageHero
+        title={post.title}
+        subtitle={post.excerpt}
+        breadcrumb={[
+          { label: 'Inicio', href: '/' },
+          { label: post.title },
+        ]}
+      />
+      <LayoutShell>
+        <div className="grid gap-12 lg:grid-cols-[2.3fr_1fr]">
+          <article className="space-y-8">
+            <div className="relative h-72 w-full overflow-hidden rounded-3xl">
+              <Image
+                src={coverImage}
+                alt={post.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 60vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-900/50 to-transparent" />
+            </div>
+            <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-500">
+              <span className="text-brand-700">{post.category.name}</span>
+              <span className="h-1 w-1 rounded-full bg-brand-300" aria-hidden />
+              <span>{formatDate(post.publishedAt)}</span>
+              <span className="h-1 w-1 rounded-full bg-brand-300" aria-hidden />
+              <span>{post.readingTime} min leitura</span>
+              <span className="h-1 w-1 rounded-full bg-brand-300" aria-hidden />
+              <span>{post.author}</span>
+            </div>
+            <div className="prose prose-lg max-w-none prose-headings:font-display prose-headings:text-brand-900 prose-headings:mt-10 prose-headings:mb-4 prose-p:text-brand-700 prose-p:text-base prose-p:leading-relaxed prose-p:my-7 prose-blockquote:border-l-4 prose-blockquote:border-brand-200 prose-blockquote:bg-brand-50/60 prose-blockquote:py-3 prose-blockquote:px-6">
+              <ReactMarkdown skipHtml>{post.content}</ReactMarkdown>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {post.tags.map((tag) => (
+                <Link
+                  key={tag}
+                  href={`/categoria/${post.category.slug}?tag=${tag}`}
+                  className="rounded-full border border-brand-200 px-3 py-1 text-xs text-brand-700 hover:border-brand-400"
+                >
+                  {tag}
+                </Link>
+              ))}
+            </div>
+            {!post.bookTitle && (
+              <BookTechnicalSheet
+                author={post.bookAuthor}
+                translator={post.bookTranslator}
+                publisher={post.bookPublisher}
+                year={post.bookYear}
+                pages={post.bookPages}
+              />
+            )}
+            <BookBox
+              title={post.bookTitle}
+              amazonUrl={post.amazonUrl}
+              coverImageUrl={post.coverImageUrl}
+              author={post.bookAuthor}
+              translator={post.bookTranslator}
+              year={post.bookYear}
+              publisher={post.bookPublisher}
+              pages={post.bookPages}
+            />
+            <section className="space-y-5">
+              <h2 className="text-2xl font-semibold text-brand-900">Publicacoes relacionadas</h2>
+              <div className="grid gap-6 md:grid-cols-3">
+                {relatedPosts.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`/post/${item.slug}`}
+                    className="rounded-2xl border border-brand-100 bg-white p-4 text-sm shadow-sm transition hover:-translate-y-1 hover:border-brand-300 hover:shadow-soft"
+                  >
+                    <p className="font-semibold text-brand-900">{item.title}</p>
+                    <p className="mt-2 text-brand-700">{item.excerpt}</p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          </article>
+          <Sidebar
+            categories={categories}
+            recentPosts={recentPostsResponse.data}
+            tags={tags}
+            basePath={`/categoria/${post.category.slug}`}
+            activeCategory={post.category.slug}
+          />
+        </div>
+      </LayoutShell>
+      <Script
+        id="post-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+    </>
+  );
+}
