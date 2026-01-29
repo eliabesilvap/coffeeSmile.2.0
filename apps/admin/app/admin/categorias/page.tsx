@@ -3,8 +3,22 @@ import { CategoryForm } from '@/components/CategoryForm';
 import { CategoryRow } from '@/components/CategoryRow';
 import { safeDb } from '@/lib/safe-db';
 
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+type CategoryWithCount = Category & {
+  _count: {
+    posts: number;
+  };
+};
+
 export default async function CategoriesPage() {
-  const categories = await safeDb(
+  const categories = await safeDb<CategoryWithCount[]>(
     { label: 'categorias' },
     () =>
       prisma.category.findMany({
