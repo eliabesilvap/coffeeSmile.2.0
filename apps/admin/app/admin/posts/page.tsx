@@ -3,12 +3,12 @@ import { prisma } from '@/lib/prisma';
 import { formatDate, formatStatus } from '@/lib/format';
 import { PostActions } from '@/components/PostActions';
 import { safeDb } from '@/lib/safe-db';
-import type { Prisma } from '@prisma/client';
+import type { Category, Post, Prisma } from '@prisma/client';
 
 const PAGE_SIZE = 10;
-type PostWithCategory = Prisma.PostGetPayload<{ include: { category: true } }>;
-type PostStatus = PostWithCategory['status'];
-type CategoryItem = Prisma.CategoryGetPayload<{}>;
+type PostWithCategory = Post & { category: Category };
+type PostStatus = Post['status'];
+type CategoryItem = Category;
 
 function buildQuery(
   params: {
