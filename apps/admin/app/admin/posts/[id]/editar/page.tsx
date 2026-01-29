@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { safeDb } from '@/lib/safe-db';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditPostPage({ params }: { params: { id: string } }) {
   const [post, categories] = await safeDb(
     { label: 'post/editar' },

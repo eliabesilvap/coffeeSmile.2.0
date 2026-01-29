@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { PostForm } from '@/components/PostForm';
 import { safeDb } from '@/lib/safe-db';
+
+export const dynamic = 'force-dynamic';
+
 export default async function NewPostPage() {
   const categories = await safeDb(
     { label: 'categorias' },

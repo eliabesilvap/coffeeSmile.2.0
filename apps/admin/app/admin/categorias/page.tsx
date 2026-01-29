@@ -3,6 +3,8 @@ import { CategoryForm } from '@/components/CategoryForm';
 import { CategoryRow } from '@/components/CategoryRow';
 import { safeDb } from '@/lib/safe-db';
 
+export const dynamic = 'force-dynamic';
+
 type Category = {
   id: string;
   name: string;
