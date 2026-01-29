@@ -48,6 +48,8 @@ pnpm dev
 - `pnpm dev` - inicia web + api + admin
 - `pnpm dev:admin` - inicia apenas o admin
 - `pnpm build` - build de producao
+- `pnpm build:admin` - build apenas do admin
+- `pnpm build:web` - build apenas do web
 - `pnpm lint` - lint nos apps
 - `pnpm db:reset` - reinicia a base de dados (down/up + migrate + seed)
 - `pnpm db:migrate` - migrations Prisma
@@ -66,6 +68,14 @@ apps/admin # Painel administrativo
 - `apps/admin/.env.local`: `DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` e credenciais do Cloudinary.
 - `apps/api/.env.local`: `DATABASE_URL`.
 - `apps/web/.env.local`: `NEXT_PUBLIC_API_URL`.
+
+## Deploy na Vercel (evitar build do apps/api)
+Cria dois projetos na Vercel (um para `admin` e outro para `web`) e define:
+- **Root Directory**: `apps/admin` ou `apps/web`
+- **Install Command**: `pnpm install`
+- **Build Command**:
+  - admin: `pnpm --filter admin build` (ou `pnpm build:admin`)
+  - web: `pnpm --filter web build` (ou `pnpm build:web`)
 
 ## Notas
 - Imagens de capa estao em `apps/web/public/images`.

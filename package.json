@@ -1,7 +1,7 @@
 {
   "name": "coffesmile",
   "private": true,
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@10.0.0",
   "engines": {
     "node": "24.0.0"
   },
@@ -9,6 +9,8 @@
     "dev": "turbo run dev --parallel",
     "dev:admin": "pnpm --filter admin dev",
     "build": "turbo run build",
+    "build:admin": "pnpm --filter admin build",
+    "build:web": "pnpm --filter web build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "start": "turbo run start",
