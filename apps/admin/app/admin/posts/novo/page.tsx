@@ -1,16 +1,42 @@
 import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
 import { PostForm } from '@/components/PostForm';
-import { safeDb } from '@/lib/safe-db';
+import { getApiBaseUrl } from '@/lib/api';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+type CategoryItem = {
+  id: string;
+  name: string;
+};
+
+async function fetchCategories() {
+  const baseUrl = getApiBaseUrl();
+  if (!baseUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL ausente. Define a URL da API externa.');
+  }
+
+  try {
+    const response = await fetch(new URL('/categories', baseUrl), {
+      cache: 'no-store',
+      next: { revalidate: 0 },
+    });
+    if (!response.ok) {
+      throw new Error(`Falha ao carregar categorias (${response.status}).`);
+    }
+    const payload = (await response.json()) as { data?: CategoryItem[] };
+    return payload.data ?? [];
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Falha ao carregar categorias da API externa.');
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return [];
+  }
+}
 
 export default async function NewPostPage() {
-  const categories = await safeDb(
-    { label: 'categorias' },
-    () => prisma.category.findMany({ orderBy: { name: 'asc' } }),
-    [],
-  );
+  const categories = await fetchCategories();
 
   if (categories.length === 0) {
     return (

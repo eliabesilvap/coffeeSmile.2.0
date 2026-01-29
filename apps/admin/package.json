@@ -9,8 +9,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@prisma/client": "^5.19.1",
-    "cloudinary": "^2.5.1",
     "clsx": "^2.1.1",
     "next": "14.2.35",
     "next-auth": "^4.24.7",

@@ -1,21 +1,91 @@
-import { prisma } from '@/lib/prisma';
 import { PostForm } from '@/components/PostForm';
 import { notFound } from 'next/navigation';
-import { safeDb } from '@/lib/safe-db';
 import Link from 'next/link';
+import { getApiBaseUrl } from '@/lib/api';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+type CategoryItem = {
+  id: string;
+  name: string;
+};
+
+type PostResponse = {
+  data?: {
+    id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    content: string;
+    tags: string[];
+    status: 'draft' | 'published';
+    categoryId: string;
+    coverImageUrl?: string | null;
+    coverImagePublicId?: string | null;
+    bookTitle?: string | null;
+    bookAuthor?: string | null;
+    bookTranslator?: string | null;
+    bookYear?: number | null;
+    bookPublisher?: string | null;
+    bookPages?: number | null;
+    amazonUrl?: string | null;
+  };
+};
+
+async function fetchCategories() {
+  const baseUrl = getApiBaseUrl();
+  if (!baseUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL ausente. Define a URL da API externa.');
+  }
+
+  try {
+    const response = await fetch(new URL('/categories', baseUrl), {
+      cache: 'no-store',
+      next: { revalidate: 0 },
+    });
+    if (!response.ok) {
+      throw new Error(`Falha ao carregar categorias (${response.status}).`);
+    }
+    const payload = (await response.json()) as { data?: CategoryItem[] };
+    return payload.data ?? [];
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Falha ao carregar categorias da API externa.');
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return [];
+  }
+}
+
+async function fetchPost(id: string) {
+  const baseUrl = getApiBaseUrl();
+  if (!baseUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL ausente. Define a URL da API externa.');
+  }
+
+  const response = await fetch(new URL(`/posts/${id}`, baseUrl), {
+    cache: 'no-store',
+    next: { revalidate: 0 },
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Falha ao carregar post (${response.status}).`);
+  }
+
+  const payload = (await response.json()) as PostResponse;
+  return payload.data ?? null;
+}
 
 export default async function EditPostPage({ params }: { params: { id: string } }) {
-  const [post, categories] = await safeDb(
-    { label: 'post/editar' },
-    () =>
-      Promise.all([
-        prisma.post.findUnique({ where: { id: params.id } }),
-        prisma.category.findMany({ orderBy: { name: 'asc' } }),
-      ]),
-    [null, []] as const,
-  );
+  const [post, categories] = await Promise.all([
+    fetchPost(params.id),
+    fetchCategories(),
+  ]);
 
   if (!post) {
     notFound();

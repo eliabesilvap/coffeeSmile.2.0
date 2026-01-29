@@ -1,9 +1,9 @@
-import { prisma } from '@/lib/prisma';
 import { CategoryForm } from '@/components/CategoryForm';
 import { CategoryRow } from '@/components/CategoryRow';
-import { safeDb } from '@/lib/safe-db';
+import { getApiBaseUrl } from '@/lib/api';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 type Category = {
   id: string;
@@ -19,20 +19,33 @@ type CategoryWithCount = Category & {
   };
 };
 
+async function fetchCategories() {
+  const baseUrl = getApiBaseUrl();
+  if (!baseUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL ausente. Define a URL da API externa.');
+  }
+
+  try {
+    const response = await fetch(new URL('/categories', baseUrl), {
+      cache: 'no-store',
+      next: { revalidate: 0 },
+    });
+    if (!response.ok) {
+      throw new Error(`Falha ao carregar categorias (${response.status}).`);
+    }
+    const payload = (await response.json()) as { data?: CategoryWithCount[] };
+    return payload.data ?? [];
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Falha ao carregar categorias da API externa.');
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return [];
+  }
+}
+
 export default async function CategoriesPage() {
-  const categories = await safeDb<CategoryWithCount[]>(
-    { label: 'categorias' },
-    () =>
-      prisma.category.findMany({
-        orderBy: { name: 'asc' },
-        include: {
-          _count: {
-            select: { posts: true },
-          },
-        },
-      }),
-    [],
-  );
+  const categories = await fetchCategories();
 
   return (
     <section className="space-y-6">

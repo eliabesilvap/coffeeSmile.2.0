@@ -1,7 +1,17 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
-    "dev": { "cache": false, "persistent": true },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "env": [
+        "NEXTAUTH_URL",
+        "NEXTAUTH_SECRET",
+        "ADMIN_EMAIL",
+        "ADMIN_PASSWORD",
+        "NEXT_PUBLIC_API_URL"
+      ]
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "dist/**"],

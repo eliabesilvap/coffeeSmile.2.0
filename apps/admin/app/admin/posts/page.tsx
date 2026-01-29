@@ -1,16 +1,36 @@
 import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
 import { formatDate, formatStatus } from '@/lib/format';
 import { PostActions } from '@/components/PostActions';
-import { safeDb } from '@/lib/safe-db';
-import type { Prisma } from '@prisma/client';
+import { getApiBaseUrl } from '@/lib/api';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const PAGE_SIZE = 10;
-type PostWithCategory = Prisma.PostGetPayload<{ include: { category: true } }>;
+type PostWithCategory = {
+  id: string;
+  title: string;
+  slug: string;
+  status: 'draft' | 'published';
+  publishedAt?: string | null;
+  category: {
+    id: string;
+    name: string;
+  };
+};
 type PostStatus = PostWithCategory['status'];
-type CategoryItem = Prisma.CategoryGetPayload<{}>;
+type CategoryItem = {
+  id: string;
+  name: string;
+  slug?: string;
+};
+
+type PostsResponse = {
+  data?: PostWithCategory[];
+  meta?: {
+    total?: number;
+  };
+};
 
 function buildQuery(
   params: {
@@ -28,6 +48,69 @@ function buildQuery(
   return `?${searchParams.toString()}`;
 }
 
+async function fetchCategories() {
+  const baseUrl = getApiBaseUrl();
+  if (!baseUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL ausente. Define a URL da API externa.');
+  }
+
+  try {
+    const response = await fetch(new URL('/categories', baseUrl), {
+      cache: 'no-store',
+      next: { revalidate: 0 },
+    });
+    if (!response.ok) {
+      throw new Error(`Falha ao carregar categorias (${response.status}).`);
+    }
+    const payload = (await response.json()) as { data?: CategoryItem[] };
+    return payload.data ?? [];
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Falha ao carregar categorias da API externa.');
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return [];
+  }
+}
+
+async function fetchPosts(params: {
+  q?: string;
+  status?: string;
+  categoryId?: string;
+  page: number;
+}) {
+  const baseUrl = getApiBaseUrl();
+  if (!baseUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL ausente. Define a URL da API externa.');
+  }
+
+  const searchParams = new URLSearchParams();
+  if (params.q) searchParams.set('q', params.q);
+  if (params.status) searchParams.set('status', params.status);
+  if (params.categoryId) searchParams.set('categoryId', params.categoryId);
+  searchParams.set('page', params.page.toString());
+  searchParams.set('pageSize', PAGE_SIZE.toString());
+
+  try {
+    const url = new URL('/posts', baseUrl);
+    url.search = searchParams.toString();
+    const response = await fetch(url, {
+      cache: 'no-store',
+      next: { revalidate: 0 },
+    });
+    if (!response.ok) {
+      throw new Error(`Falha ao carregar posts (${response.status}).`);
+    }
+    return (await response.json()) as PostsResponse;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Falha ao carregar posts da API externa.');
+    // eslint-disable-next-line no-console
+    console.error(error);
+    return { data: [], meta: { total: 0 } };
+  }
+}
+
 export default async function PostsPage({
   searchParams,
 }: {
@@ -42,37 +125,13 @@ export default async function PostsPage({
   const parsedPage = Number(searchParams.page ?? '1');
   const currentPage = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
 
-  const where: Prisma.PostWhereInput = {
-    ...(status ? { status } : {}),
-    ...(categoryId ? { categoryId } : {}),
-    ...(q
-      ? {
-          OR: [
-            { title: { contains: q, mode: 'insensitive' as const } },
-            { excerpt: { contains: q, mode: 'insensitive' as const } },
-          ],
-        }
-      : {}),
-  };
+  const [postsResponse, categories] = await Promise.all([
+    fetchPosts({ q, status, categoryId, page: currentPage }),
+    fetchCategories(),
+  ]);
 
-  const [posts, categories, total] = await safeDb<
-    [PostWithCategory[], CategoryItem[], number]
-  >(
-    { label: 'posts' },
-    () =>
-      Promise.all([
-        prisma.post.findMany({
-          where,
-          include: { category: true },
-          orderBy: { updatedAt: 'desc' },
-          skip: (currentPage - 1) * PAGE_SIZE,
-          take: PAGE_SIZE,
-        }),
-        prisma.category.findMany({ orderBy: { name: 'asc' } }),
-        prisma.post.count({ where }),
-      ]),
-    [[], [], 0] as const,
-  );
+  const posts = postsResponse.data ?? [];
+  const total = postsResponse.meta?.total ?? posts.length;
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
