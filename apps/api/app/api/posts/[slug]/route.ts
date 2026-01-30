@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { Prisma } from '@prisma/client';
+import { Prisma, PostStatus } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { apiErrorResponse } from '@/lib/api-error';
@@ -112,13 +112,13 @@ export async function GET(
 ) {
   try {
     const isAdminRequest = request.headers.get('x-admin-request') === '1';
-    const where = isAdminRequest
+    const where: Prisma.PostWhereInput = isAdminRequest
       ? {
           OR: [{ id: params.slug }, { slug: params.slug }],
         }
       : {
           slug: params.slug,
-          status: 'published',
+          status: PostStatus.published,
         };
 
     const post = await prisma.post.findFirst({
