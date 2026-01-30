@@ -1,10 +1,41 @@
 import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
+import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { apiErrorResponse } from '@/lib/api-error';
 import { postResponseSchema } from '@/lib/schemas';
 
 const DETAIL_CACHE_CONTROL = 'public, s-maxage=300';
+const WORDS_PER_MINUTE = 200;
+const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+const postInputSchema = z.object({
+  title: z.string().trim().min(3),
+  slug: z.string().trim().min(3).regex(slugRegex),
+  excerpt: z.string().trim().min(10),
+  content: z.string().trim().min(10),
+  tags: z.array(z.string().trim().min(1)).max(20),
+  status: z.enum(['draft', 'published']),
+  categoryId: z.string().trim().min(1),
+  coverImageUrl: z.string().trim().min(1).nullable().optional(),
+  coverImagePublicId: z.string().trim().min(1).nullable().optional(),
+  bookTitle: z.string().trim().min(1).nullable().optional(),
+  bookAuthor: z.string().trim().min(1).nullable().optional(),
+  bookTranslator: z.string().trim().min(1).nullable().optional(),
+  bookYear: z.number().int().positive().nullable().optional(),
+  bookPublisher: z.string().trim().min(1).nullable().optional(),
+  bookPages: z.number().int().positive().nullable().optional(),
+  amazonUrl: z.string().url().nullable().optional(),
+});
+
+function ensureAdminRequest(request: Request) {
+  return request.headers.get('x-admin-request') === '1';
+}
+
+function computeReadingTime(content: string) {
+  const words = content.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
+}
 
 function mapPostSummary(post: {
   id: string;
@@ -76,15 +107,22 @@ function mapPostDetail(post: {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: { slug: string } },
 ) {
   try {
+    const isAdminRequest = request.headers.get('x-admin-request') === '1';
+    const where = isAdminRequest
+      ? {
+          OR: [{ id: params.slug }, { slug: params.slug }],
+        }
+      : {
+          slug: params.slug,
+          status: 'published',
+        };
+
     const post = await prisma.post.findFirst({
-      where: {
-        slug: params.slug,
-        status: 'published',
-      },
+      where,
       include: {
         category: true,
       },
@@ -160,5 +198,110 @@ export async function GET(
     });
   } catch (error) {
     return apiErrorResponse('GET /api/posts/[slug]', error);
+  }
+}
+
+export async function PUT(
+  request: Request,
+  { params }: { params: { slug: string } },
+) {
+  if (!ensureAdminRequest(request)) {
+    return NextResponse.json({ message: 'Nao autorizado.' }, { status: 401 });
+  }
+
+  try {
+    const payload = await request.json().catch(() => null);
+    const parsed = postInputSchema.safeParse(payload);
+
+    if (!parsed.success) {
+      return NextResponse.json({ message: 'Dados invalidos.' }, { status: 400 });
+    }
+
+    const existing = await prisma.post.findFirst({
+      where: {
+        OR: [{ id: params.slug }, { slug: params.slug }],
+      },
+      select: {
+        id: true,
+        publishedAt: true,
+      },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ message: 'Post nao encontrado.' }, { status: 404 });
+    }
+
+    const readingTime = computeReadingTime(parsed.data.content);
+    const shouldPublish =
+      parsed.data.status === 'published' && !existing.publishedAt;
+
+    const updated = await prisma.post.update({
+      where: { id: existing.id },
+      data: {
+        title: parsed.data.title.trim(),
+        slug: parsed.data.slug.trim().toLowerCase(),
+        excerpt: parsed.data.excerpt.trim(),
+        content: parsed.data.content,
+        tags: parsed.data.tags,
+        status: parsed.data.status,
+        categoryId: parsed.data.categoryId,
+        coverImageUrl: parsed.data.coverImageUrl ?? null,
+        coverImagePublicId: parsed.data.coverImagePublicId ?? null,
+        bookTitle: parsed.data.bookTitle ?? null,
+        bookAuthor: parsed.data.bookAuthor ?? null,
+        bookTranslator: parsed.data.bookTranslator ?? null,
+        bookYear: parsed.data.bookYear ?? null,
+        bookPublisher: parsed.data.bookPublisher ?? null,
+        bookPages: parsed.data.bookPages ?? null,
+        amazonUrl: parsed.data.amazonUrl ?? null,
+        readingTime,
+        ...(shouldPublish ? { publishedAt: new Date() } : {}),
+      },
+    });
+
+    return NextResponse.json({
+      data: {
+        id: updated.id,
+        slug: updated.slug,
+      },
+    });
+  } catch (error) {
+    if (
+      typeof error === 'object' &&
+      error &&
+      'code' in error &&
+      (error as { code?: string }).code === 'P2002'
+    ) {
+      return NextResponse.json({ message: 'Slug ja existe.' }, { status: 409 });
+    }
+
+    return apiErrorResponse('PUT /api/posts/[slug]', error);
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { slug: string } },
+) {
+  if (!ensureAdminRequest(request)) {
+    return NextResponse.json({ message: 'Nao autorizado.' }, { status: 401 });
+  }
+
+  try {
+    const existing = await prisma.post.findFirst({
+      where: {
+        OR: [{ id: params.slug }, { slug: params.slug }],
+      },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ message: 'Post nao encontrado.' }, { status: 404 });
+    }
+
+    await prisma.post.delete({ where: { id: existing.id } });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    return apiErrorResponse('DELETE /api/posts/[slug]', error);
   }
 }

@@ -64,9 +64,10 @@ async function fetchPost(id: string) {
     throw new Error('NEXT_PUBLIC_API_URL ausente. Define a URL da API externa.');
   }
 
-  const response = await fetch(new URL(`/posts/${id}`, baseUrl), {
+  const response = await fetch(new URL(`posts/${id}`, baseUrl), {
     cache: 'no-store',
     next: { revalidate: 0 },
+    headers: { 'x-admin-request': '1' },
   });
 
   if (response.status === 404) {

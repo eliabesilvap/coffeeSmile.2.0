@@ -20,6 +20,7 @@ export async function proxyApiRequest(request: Request, path: string) {
   const headers = new Headers(request.headers);
   headers.delete('host');
   headers.delete('content-length');
+  headers.set('x-admin-request', '1');
 
   const init: RequestInit = {
     method: request.method,
