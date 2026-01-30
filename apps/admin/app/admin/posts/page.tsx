@@ -55,7 +55,7 @@ async function fetchCategories() {
   }
 
   try {
-    const response = await fetch(new URL('/categories', baseUrl), {
+    const response = await fetch(new URL('categories', baseUrl), {
       cache: 'no-store',
       next: { revalidate: 0 },
     });
@@ -92,7 +92,7 @@ async function fetchPosts(params: {
   searchParams.set('pageSize', PAGE_SIZE.toString());
 
   try {
-    const url = new URL('/posts', baseUrl);
+    const url = new URL('posts', baseUrl);
     url.search = searchParams.toString();
     const response = await fetch(url, {
       cache: 'no-store',

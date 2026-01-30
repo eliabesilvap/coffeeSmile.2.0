@@ -17,7 +17,7 @@ async function fetchCategories() {
   }
 
   try {
-    const response = await fetch(new URL('/categories', baseUrl), {
+    const response = await fetch(new URL('categories', baseUrl), {
       cache: 'no-store',
       next: { revalidate: 0 },
     });

@@ -13,7 +13,8 @@ export async function proxyApiRequest(request: Request, path: string) {
   }
 
   const requestUrl = new URL(request.url);
-  const targetUrl = new URL(path, baseUrl);
+  const normalizedPath = path.replace(/^\/+/, '');
+  const targetUrl = new URL(normalizedPath, baseUrl);
   targetUrl.search = requestUrl.search;
 
   const headers = new Headers(request.headers);

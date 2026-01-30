@@ -14,9 +14,10 @@ type Category = {
 };
 
 type CategoryWithCount = Category & {
-  _count: {
+  _count?: {
     posts: number;
   };
+  count?: number;
 };
 
 async function fetchCategories() {
@@ -26,7 +27,7 @@ async function fetchCategories() {
   }
 
   try {
-    const response = await fetch(new URL('/categories', baseUrl), {
+    const response = await fetch(new URL('categories', baseUrl), {
       cache: 'no-store',
       next: { revalidate: 0 },
     });
@@ -78,7 +79,7 @@ export default async function CategoriesPage() {
                   id={category.id}
                   name={category.name}
                   slug={category.slug}
-                  postsCount={category._count.posts}
+                  postsCount={category.count ?? category._count?.posts ?? 0}
                 />
               ))}
             </tbody>
