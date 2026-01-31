@@ -55,13 +55,11 @@ export async function POST(request: Request) {
 
     const timestamp = Math.floor(Date.now() / 1000);
     const allowedFormats = DEFAULT_ALLOWED_FORMATS;
-    const maxBytes = DEFAULT_MAX_BYTES;
     const folder = payload?.folder?.trim() || undefined;
 
     const signatureParams: Record<string, string | number> = {
       timestamp,
       allowed_formats: allowedFormats.join(','),
-      max_bytes: maxBytes,
     };
 
     if (folder) {
@@ -77,7 +75,6 @@ export async function POST(request: Request) {
       signature,
       folder,
       allowedFormats,
-      maxBytes,
     });
   } catch (error) {
     const message =
