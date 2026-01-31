@@ -17,7 +17,7 @@ const prisma: PrismaClientWithLogs =
   });
 
 if (isNewPrismaClient) {
-  prisma.$on('error', (event: Prisma.LogEvent<'error'>) => {
+  prisma.$on('error', (event: Prisma.LogEvent) => {
     console.error(
       JSON.stringify({
         level: 'error',
