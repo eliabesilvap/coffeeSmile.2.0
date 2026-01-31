@@ -152,14 +152,14 @@ export default async function PostPage({ params }: { params: { slug: string } })
       <LayoutShell>
         <div className="grid gap-12 lg:grid-cols-[2.3fr_1fr]">
           <article className="space-y-8">
-            <div className="relative h-72 w-full overflow-hidden rounded-3xl">
+            <div className="relative mx-auto w-full max-w-[720px] overflow-hidden rounded-3xl bg-brand-50/60 aspect-[4/5]">
               <Image
                 src={coverImage}
                 alt={post.title}
                 fill
                 priority
-                className="object-cover object-center"
-                sizes="(max-width: 768px) 100vw, 60vw"
+                className="object-contain object-center"
+                sizes="(max-width: 768px) 100vw, 720px"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-900/50 to-transparent" />
             </div>
