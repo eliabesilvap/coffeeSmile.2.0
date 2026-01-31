@@ -87,6 +87,8 @@ export default async function PostPage({ params }: { params: { slug: string } })
   const post = postResponse.data;
   const coverImage = resolvePostCoverImage(post, 'hero') || '/images/cover-default.svg';
   const bookCoverSource = resolveBookCoverSource(post);
+  const bookCover =
+    bookCoverSource ?? resolvePostCoverImage(post, 'hero') ?? '/images/cover-default.svg';
   const authorName = post.authorName?.trim() || post.author?.trim() || 'CoffeeSmile';
   const canonical = absoluteUrl(postUrl(post.slug));
   const seoDescription =
@@ -158,7 +160,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 alt={post.title}
                 fill
                 priority
-                className="object-contain object-center"
+                className="object-cover object-center"
                 sizes="(max-width: 768px) 100vw, 720px"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-900/50 to-transparent" />
@@ -205,7 +207,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
             <BookBox
               title={post.bookTitle}
               amazonUrl={post.amazonUrl}
-              coverImageUrl={bookCoverSource}
+              coverImageUrl={bookCover}
               author={post.bookAuthor}
               translator={post.bookTranslator}
               year={post.bookYear}

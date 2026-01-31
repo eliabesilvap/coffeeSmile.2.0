@@ -46,7 +46,7 @@ export function BookBox({
         <div className="flex flex-col justify-between gap-6">
           <div className="space-y-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-brand-400">
-              Caixa do livro
+              Sobre o livro
             </p>
             <h3 className="text-2xl font-semibold text-brand-900">{title}</h3>
             <dl className="grid gap-4 text-sm text-brand-700 sm:grid-cols-2">

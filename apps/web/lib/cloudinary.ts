@@ -10,7 +10,7 @@ const VARIANT_TRANSFORMS: Record<
   string
 > = {
   card: 'c_fill,ar_16:9,w_800',
-  hero: 'c_fill,ar_16:9,w_1600',
+  hero: 'c_fill,g_auto,w_1200,h_1500',
   inline: 'c_fill,w_1200',
   thumb: 'c_fill,w_200,h_140',
   book: 'c_fill,ar_2:3,w_360',

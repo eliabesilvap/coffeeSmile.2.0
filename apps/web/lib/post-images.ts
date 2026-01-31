@@ -20,7 +20,11 @@ export function resolveBookCoverSource(post: PostImageSource) {
 }
 
 export function resolvePostCoverImage(post: PostImageSource, variant: ImageVariant) {
-  return getImage(resolvePostCoverSource(post), variant);
+  const source = resolvePostCoverSource(post);
+  if (variant === 'hero') {
+    return getImage(source, 'hero');
+  }
+  return getImage(source, variant);
 }
 
 export function resolveBookCoverImage(post: PostImageSource, variant: ImageVariant) {
