@@ -40,13 +40,17 @@ export default function SobrePage() {
         <div className="rounded-3xl border border-brand-100 bg-white p-8 text-brand-700 shadow-sm">
           <h2 className="mb-4 text-2xl font-semibold text-brand-900">A nossa missão</h2>
           <p className="mb-4">
-            O CoffeeSmile nasce do encontro entre livros que alimentam a fé e o ritual diário do café.
-            Aqui partilhamos resenhas honestas, guias práticos e pequenas reflexões que ajudam a trazer
-            a leitura, o silêncio e a devoção para o centro da rotina.
+            O CoffeeSmile é um espaço editorial dedicado a livros cristãos, teologia e leitura
+            devocional, pensado para quem deseja aprofundar a fé cristã de forma simples e honesta.
+          </p>
+          <p className="mb-4">
+            O conteúdo é feito para leitores que gostam de refletir com calma: gente que busca
+            recomendações, resenhas e caminhos de leitura que ajudem no dia a dia, sem pressa e sem
+            excesso de ruído.
           </p>
           <p>
-            Se queres acompanhar as novidades, subscreve a newsletter e recebe um resumo mensal com
-            as publicações mais recentes.
+            Unimos fé, leitura e café como ritual de reflexão — uma pausa diária que transforma
+            páginas em oração, e histórias em prática.
           </p>
         </div>
       </LayoutShell>

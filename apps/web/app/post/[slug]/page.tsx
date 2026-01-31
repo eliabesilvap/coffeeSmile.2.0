@@ -246,6 +246,12 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 </div>
               </nav>
             )}
+            <section
+              aria-label="Convite editorial"
+              className="rounded-2xl border border-brand-100 bg-brand-50/70 px-6 py-4 text-sm text-brand-700"
+            >
+              <p className="text-brand-700">Se este conteúdo te ajudou, compartilhe com alguém.</p>
+            </section>
             <section className="space-y-5">
               <h2 className="text-2xl font-semibold text-brand-900">Publicações relacionadas</h2>
               <div className="grid gap-6 md:grid-cols-3">
