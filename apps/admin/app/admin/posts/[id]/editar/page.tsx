@@ -30,6 +30,7 @@ type PostResponse = {
     bookPublisher?: string | null;
     bookPages?: number | null;
     amazonUrl?: string | null;
+    authorName?: string | null;
   };
 };
 
@@ -121,6 +122,7 @@ export default async function EditPostPage({ params }: { params: { id: string } 
           bookPublisher: post.bookPublisher,
           bookPages: post.bookPages,
           amazonUrl: post.amazonUrl,
+          authorName: post.authorName,
         }}
       />
     </section>

@@ -29,6 +29,7 @@ export type PostFormData = {
   bookPublisher?: string | null;
   bookPages?: number | null;
   amazonUrl?: string | null;
+  authorName?: string | null;
 };
 
 type PostFormProps = {
@@ -57,6 +58,7 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
   const [bookPublisher, setBookPublisher] = useState(initialPost?.bookPublisher ?? '');
   const [bookPages, setBookPages] = useState<number | null>(initialPost?.bookPages ?? null);
   const [amazonUrl, setAmazonUrl] = useState(initialPost?.amazonUrl ?? '');
+  const [authorName, setAuthorName] = useState(initialPost?.authorName ?? '');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -100,6 +102,7 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
       bookPublisher: bookPublisher?.trim() || null,
       bookPages,
       amazonUrl: amazonUrl?.trim() || null,
+      authorName: authorName?.trim() || null,
     };
 
     const endpoint = initialPost?.id ? `/api/posts/${initialPost.id}` : '/api/posts';
@@ -178,6 +181,18 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
               value={excerpt}
               onChange={(event) => setExcerpt(event.target.value)}
               required
+            />
+          </div>
+          <div>
+            <label className="admin-label" htmlFor="authorName">
+              Autor
+            </label>
+            <input
+              id="authorName"
+              className="admin-input"
+              value={authorName}
+              onChange={(event) => setAuthorName(event.target.value)}
+              placeholder="Ex.: Eliabe"
             />
           </div>
           <div>

@@ -22,6 +22,8 @@ export const postSummarySchema = z.object({
   bookPages: z.number().int().nullable().optional(),
   amazonUrl: z.string().url().nullable().optional(),
   author: z.string(),
+  authorName: z.string().min(1).nullable().optional(),
+  categoryId: z.string().optional(),
   publishedAt: z.string(),
   readingTime: z.number(),
   tags: z.array(z.string()),

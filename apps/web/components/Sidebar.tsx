@@ -1,8 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getCloudinaryImageUrl } from '@/lib/cloudinary';
+import { getImage } from '@/lib/cloudinary';
 import { Category, PostSummary } from '@/lib/types';
 import { formatDate } from '@/lib/format';
+import { categoryUrl, postUrl } from '@/lib/routes';
 
 type CategoryWithCount = Category & { count?: number };
 
@@ -54,7 +55,10 @@ export function CategoryList({
   categories: CategoryWithCount[];
   activeCategory?: string;
 }) {
-  const hasCategories = categories.length > 0;
+  const visibleCategories = categories.filter(
+    (category) => typeof category.count !== 'number' || category.count > 0,
+  );
+  const hasCategories = visibleCategories.length > 0;
   return (
     <div className={cardBase}>
       <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.25em] text-brand-900">
@@ -62,10 +66,10 @@ export function CategoryList({
       </h3>
       {hasCategories ? (
         <ul className="space-y-3 text-sm text-brand-700">
-          {categories.map((category) => (
+          {visibleCategories.map((category) => (
             <li key={category.id} className="flex items-center justify-between">
               <Link
-                href={`/categoria/${category.slug}`}
+                href={categoryUrl(category.slug)}
                 className={`hover:text-brand-600 ${
                   activeCategory === category.slug ? 'font-semibold text-brand-900' : ''
                 }`}
@@ -96,10 +100,10 @@ export function RecentPosts({ posts }: { posts: PostSummary[] }) {
       <ul className="space-y-4 text-sm text-brand-700">
         {posts.map((post) => (
           <li key={post.id} className="flex gap-3">
-            <Link href={`/post/${post.slug}`} className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl">
+            <Link href={postUrl(post.slug)} className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl">
               <Image
                 src={
-                  getCloudinaryImageUrl(post.coverImageUrl, 'thumb') ||
+                  getImage(post.coverImageUrl, 'thumb') ||
                   '/images/cover-default.svg'
                 }
                 alt={post.title}
@@ -109,7 +113,7 @@ export function RecentPosts({ posts }: { posts: PostSummary[] }) {
               />
             </Link>
             <div className="space-y-1">
-              <Link href={`/post/${post.slug}`} className="font-semibold text-brand-900 hover:text-brand-600">
+              <Link href={postUrl(post.slug)} className="font-semibold text-brand-900 hover:text-brand-600">
                 {post.title}
               </Link>
               <p className="text-xs text-brand-500">{formatDate(post.publishedAt)}</p>

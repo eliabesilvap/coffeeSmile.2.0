@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { getCloudinaryImageUrl } from '@/lib/cloudinary';
+import { getImage } from '@/lib/cloudinary';
 
 type BookBoxProps = {
   title: string | null | undefined;
@@ -29,7 +29,7 @@ export function BookBox({
   }
 
   const coverImage =
-    getCloudinaryImageUrl(coverImageUrl, 'book') || '/images/cover-default.svg';
+    getImage(coverImageUrl, 'book') || '/images/cover-default.svg';
 
   return (
     <section className="rounded-3xl border border-brand-100 bg-white px-6 py-8 shadow-sm">

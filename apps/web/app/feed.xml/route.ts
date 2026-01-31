@@ -1,6 +1,7 @@
 import { getAllPosts } from '@/lib/content';
 import { absoluteUrl, siteUrl } from '@/lib/site';
 import type { PostSummary } from '@/lib/types';
+import { postUrl } from '@/lib/routes';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,7 +36,7 @@ export async function GET(): Promise<Response> {
 
   const items = publishedPosts
     .map((post) => {
-      const link = absoluteUrl(`/post/${post.slug}`);
+      const link = absoluteUrl(postUrl(post.slug));
       const title = escapeXml(post.title);
       const description = escapeXml(post.excerpt ?? '');
       const content = wrapCdata(post.content ?? '');
@@ -58,7 +59,7 @@ export async function GET(): Promise<Response> {
   <channel>
     <title>CoffeeSmile Blog</title>
     <link>${siteUrl}</link>
-    <description>Resenhas de livros cristaos, teologia e cultura do cafe.</description>
+    <description>Resenhas de livros cristãos, teologia e cultura do café.</description>
     <language>pt-PT</language>
     <lastBuildDate>${now}</lastBuildDate>
     <atom:link href="${absoluteUrl('/feed.xml')}" rel="self" type="application/rss+xml" />

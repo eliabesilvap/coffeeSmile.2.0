@@ -35,6 +35,8 @@ model Post {
   bookPages   Int?
   amazonUrl   String?
   author      String
+  authorName  String?
+  authorSlug  String?
   publishedAt DateTime
   readingTime Int
   tags        String[]

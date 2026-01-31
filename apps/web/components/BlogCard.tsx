@@ -1,12 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getCloudinaryImageUrl } from '@/lib/cloudinary';
+import { getImage } from '@/lib/cloudinary';
 import { PostSummary } from '@/lib/types';
 import { formatDate } from '@/lib/format';
+import { postUrl } from '@/lib/routes';
 
 export function BlogCard({ post }: { post: PostSummary }) {
   const coverImage =
-    getCloudinaryImageUrl(post.coverImageUrl, 'card') || '/images/cover-default.svg';
+    getImage(post.coverImageUrl, 'card') || '/images/cover-default.svg';
 
   return (
     <article className="group overflow-hidden rounded-3xl border border-brand-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-soft">
@@ -30,13 +31,13 @@ export function BlogCard({ post }: { post: PostSummary }) {
           <span>{post.readingTime} min leitura</span>
         </div>
         <h3 className="text-xl font-semibold leading-snug text-brand-900">
-          <Link href={`/post/${post.slug}`} className="hover:text-brand-600">
+          <Link href={postUrl(post.slug)} className="hover:text-brand-600">
             {post.title}
           </Link>
         </h3>
         <p className="text-sm leading-relaxed text-brand-700">{post.excerpt}</p>
         <Link
-          href={`/post/${post.slug}`}
+          href={postUrl(post.slug)}
           className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-brand-800 hover:text-brand-600"
         >
           Ler mais

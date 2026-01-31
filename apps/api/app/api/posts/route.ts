@@ -28,6 +28,7 @@ const postInputSchema = z.object({
   bookPublisher: z.string().trim().min(1).nullable().optional(),
   bookPages: z.number().int().positive().nullable().optional(),
   amazonUrl: z.string().url().nullable().optional(),
+  authorName: z.string().trim().min(1).nullable().optional(),
 });
 
 function ensureAdminRequest(request: Request) {
@@ -119,6 +120,8 @@ export async function GET(request: Request) {
         bookPages: true,
         amazonUrl: true,
         author: true,
+        authorName: true,
+        categoryId: true,
         publishedAt: true,
         readingTime: true,
         tags: true,
@@ -152,6 +155,8 @@ export async function GET(request: Request) {
         bookPages: post.bookPages ?? null,
         amazonUrl: post.amazonUrl ?? null,
         author: post.author,
+        authorName: post.authorName ?? null,
+        categoryId: post.categoryId,
         publishedAt: post.publishedAt.toISOString(),
         readingTime: post.readingTime,
         tags: post.tags,
@@ -197,6 +202,7 @@ export async function POST(request: Request) {
 
     const now = new Date();
     const readingTime = computeReadingTime(parsed.data.content);
+    const authorName = parsed.data.authorName?.trim();
 
     const created = await prisma.post.create({
       data: {
@@ -216,7 +222,8 @@ export async function POST(request: Request) {
         bookPublisher: parsed.data.bookPublisher ?? null,
         bookPages: parsed.data.bookPages ?? null,
         amazonUrl: parsed.data.amazonUrl ?? null,
-        author: 'Administrador',
+        author: authorName || 'Administrador',
+        authorName: authorName || null,
         publishedAt: now,
         readingTime,
       },

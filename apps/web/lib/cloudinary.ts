@@ -3,16 +3,17 @@ const UPLOAD_MARKER = '/upload/';
 
 const TRANSFORM_SEGMENT_REGEX = /^([a-z]{1,4}_[^/]+)(,[a-z]{1,4}_[^/]+)*$/i;
 
-const AUTO_TOKENS = ['q_auto', 'f_auto', 'dpr_auto'];
+const AUTO_TOKENS = ['q_auto', 'f_auto'];
 
 const VARIANT_TRANSFORMS: Record<
-  'card' | 'hero' | 'thumb' | 'book',
+  'card' | 'hero' | 'thumb' | 'book' | 'inline',
   string
 > = {
-  card: 'c_fill,ar_16:9,w_1200',
+  card: 'c_fill,ar_16:9,w_800',
   hero: 'c_fill,ar_16:9,w_1600',
+  inline: 'c_fill,w_1200',
   thumb: 'c_fill,w_200,h_140',
-  book: 'c_fill,w_360,h_540',
+  book: 'c_fill,ar_2:3,w_360',
 };
 
 function hasTransformSegment(segment: string) {
@@ -22,11 +23,9 @@ function hasTransformSegment(segment: string) {
 function applyAutoTokens(tokens: string[]) {
   const hasQ = tokens.some((token) => token.startsWith('q_'));
   const hasF = tokens.some((token) => token.startsWith('f_'));
-  const hasDpr = tokens.some((token) => token.startsWith('dpr_'));
   const next = [...tokens];
   if (!hasQ) next.push('q_auto');
   if (!hasF) next.push('f_auto');
-  if (!hasDpr) next.push('dpr_auto');
   return next;
 }
 
@@ -60,7 +59,7 @@ function updateCloudinaryPath(pathname: string, transform: string) {
   return restPath ? `${prefix}${transform}/${remainder}` : `${prefix}${transform}/${remainder}`;
 }
 
-export function getCloudinaryImageUrl(
+export function getImage(
   url: string | null | undefined,
   variant: keyof typeof VARIANT_TRANSFORMS,
 ) {
@@ -80,3 +79,5 @@ export function getCloudinaryImageUrl(
     return url;
   }
 }
+
+export const getCloudinaryImageUrl = getImage;

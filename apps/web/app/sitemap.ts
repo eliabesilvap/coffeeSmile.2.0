@@ -3,6 +3,7 @@ import { getCategories } from '@/lib/api';
 import { getAllPosts } from '@/lib/content';
 import { siteUrl } from '@/lib/site';
 import type { PostSummary } from '@/lib/types';
+import { categoryUrl, postUrl } from '@/lib/routes';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,11 +39,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
     },
     ...categories.map((category) => ({
-      url: `${baseUrl}/categoria/${category.slug}`,
+      url: `${baseUrl}${categoryUrl(category.slug)}`,
       lastModified: now,
     })),
     ...publishedPosts.map((post) => ({
-      url: `${baseUrl}/post/${post.slug}`,
+      url: `${baseUrl}${postUrl(post.slug)}`,
       lastModified: new Date(post.publishedAt),
     })),
   ];

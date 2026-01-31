@@ -24,11 +24,21 @@ export const metadata: Metadata = {
     template: '%s | CoffeeSmile Blog',
   },
   description:
-    'Resenhas de livros cristaos, teologia, devocionais e tudo sobre cafe: metodos, noticias e curiosidades.',
+    'Resenhas de livros cristãos, teologia, devocionais e tudo sobre café: métodos, notícias e curiosidades.',
+  icons: {
+    icon: [
+      { url: '/brand/icon-favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
+  manifest: '/site.webmanifest',
   openGraph: {
     title: 'CoffeeSmile Blog',
     description:
-      'Resenhas de livros cristaos, teologia, devocionais e tudo sobre cafe: metodos, noticias e curiosidades.',
+      'Resenhas de livros cristãos, teologia, devocionais e tudo sobre café: métodos, notícias e curiosidades.',
     type: 'website',
     locale: 'pt_PT',
     images: [defaultOgImage],
@@ -38,7 +48,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'CoffeeSmile Blog',
     description:
-      'Resenhas de livros cristaos, teologia, devocionais e tudo sobre cafe: metodos, noticias e curiosidades.',
+      'Resenhas de livros cristãos, teologia, devocionais e tudo sobre café: métodos, notícias e curiosidades.',
     images: [defaultOgImage.url],
   },
   metadataBase: new URL(siteUrl),

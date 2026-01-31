@@ -24,6 +24,7 @@ export const postInputSchema = z
     bookYear: z.number().int().positive().optional().nullable(),
     bookPublisher: z.string().trim().min(1, 'Editora inválida.').optional().nullable(),
     bookPages: z.number().int().positive().optional().nullable(),
+    authorName: z.string().trim().min(1, 'Autor inválido.').optional().nullable(),
     amazonUrl: z.preprocess(
       (value) => (value === null || value === '' ? undefined : value),
       z.string().url('URL inválida.').optional(),

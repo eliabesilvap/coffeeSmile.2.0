@@ -26,6 +26,7 @@ const postInputSchema = z.object({
   bookPublisher: z.string().trim().min(1).nullable().optional(),
   bookPages: z.number().int().positive().nullable().optional(),
   amazonUrl: z.string().url().nullable().optional(),
+  authorName: z.string().trim().min(1).nullable().optional(),
 });
 
 function ensureAdminRequest(request: Request) {
@@ -51,6 +52,8 @@ function mapPostSummary(post: {
   bookPages: number | null;
   amazonUrl: string | null;
   author: string;
+  authorName: string | null;
+  categoryId: string;
   publishedAt: Date;
   readingTime: number;
   tags: string[];
@@ -71,6 +74,8 @@ function mapPostSummary(post: {
     bookPages: post.bookPages ?? null,
     amazonUrl: post.amazonUrl ?? null,
     author: post.author,
+    authorName: post.authorName ?? null,
+    categoryId: post.categoryId,
     publishedAt: post.publishedAt.toISOString(),
     readingTime: post.readingTime,
     tags: post.tags,
@@ -94,6 +99,8 @@ function mapPostDetail(post: {
   bookPages: number | null;
   amazonUrl: string | null;
   author: string;
+  authorName: string | null;
+  categoryId: string;
   publishedAt: Date;
   readingTime: number;
   tags: string[];
@@ -162,6 +169,8 @@ export async function GET(
         bookPages: true,
         amazonUrl: true,
         author: true,
+        authorName: true,
+        categoryId: true,
         publishedAt: true,
         readingTime: true,
         tags: true,
@@ -224,6 +233,7 @@ export async function PUT(
       select: {
         id: true,
         publishedAt: true,
+        author: true,
       },
     });
 
@@ -235,6 +245,7 @@ export async function PUT(
     const shouldPublish =
       parsed.data.status === 'published' && !existing.publishedAt;
 
+    const authorName = parsed.data.authorName?.trim();
     const updated = await prisma.post.update({
       where: { id: existing.id },
       data: {
@@ -254,6 +265,12 @@ export async function PUT(
         bookPublisher: parsed.data.bookPublisher ?? null,
         bookPages: parsed.data.bookPages ?? null,
         amazonUrl: parsed.data.amazonUrl ?? null,
+        ...(parsed.data.authorName !== undefined
+          ? {
+              authorName: authorName || null,
+              author: authorName || existing.author,
+            }
+          : {}),
         readingTime,
         ...(shouldPublish ? { publishedAt: new Date() } : {}),
       },

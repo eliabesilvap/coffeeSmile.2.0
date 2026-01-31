@@ -18,9 +18,12 @@
     "test:e2e": "pnpm --filter web test:e2e",
     "db:reset": "node scripts/db-reset.mjs",
     "db:migrate": "pnpm --filter api prisma migrate dev --name init",
-    "db:seed": "pnpm --filter api prisma db seed"
+    "db:seed": "pnpm --filter api prisma db seed",
+    "generate:favicons": "node scripts/generate-favicons.mjs"
   },
   "devDependencies": {
+    "png-to-ico": "^2.1.8",
+    "sharp": "^0.33.5",
     "turbo": "^2.0.0"
   },
   "pnpm": {

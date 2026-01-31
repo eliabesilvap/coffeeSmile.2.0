@@ -7,6 +7,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { getCategories, getPosts } from '@/lib/api';
 import { deriveCategoriesFromPosts } from '@/lib/categories';
 import { absoluteUrl, defaultOgImage } from '@/lib/site';
+import { categoryUrl } from '@/lib/routes';
 
 export async function generateMetadata({
   params,
@@ -27,11 +28,11 @@ export async function generateMetadata({
   ]);
 
   const category = categoriesResponse.data.find((item) => item.slug === params.slug);
-  const canonical = absoluteUrl(`/categoria/${params.slug}`);
+  const canonical = absoluteUrl(categoryUrl(params.slug));
   const title = category ? `Categoria: ${category.name}` : 'Categoria';
   const description = category
     ? `Artigos e resenhas sobre ${category.name}.`
-    : 'Explora publicacoes dedicadas a este tema, com notas, resenhas e guias praticos.';
+    : 'Explora publicações dedicadas a este tema, com notas, resenhas e guias práticos.';
   const hasFilters =
     Boolean(searchParams.q || searchParams.tag) ||
     (Boolean(searchParams.page) && searchParams.page !== '1');
@@ -87,16 +88,16 @@ export default async function CategoryPage({
       : deriveCategoriesFromPosts(fallbackCategorySource);
   const currentCategory = categories.find((category) => category.slug === params.slug);
   const tags = Array.from(new Set(posts.flatMap((post) => post.tags)));
-  const basePath = `/categoria/${params.slug}`;
+  const basePath = categoryUrl(params.slug);
   const recentPosts = recentPostsResponse.data;
 
   return (
     <>
       <PageHero
         title={currentCategory?.name ?? 'Categoria'}
-        subtitle="Explora publicacoes dedicadas a este tema, com notas, resenhas e guias praticos."
+        subtitle="Explora publicações dedicadas a este tema, com notas, resenhas e guias práticos."
         breadcrumb={[
-          { label: 'Inicio', href: '/' },
+          { label: 'Início', href: '/' },
           { label: currentCategory?.name ?? 'Categoria' },
         ]}
       />

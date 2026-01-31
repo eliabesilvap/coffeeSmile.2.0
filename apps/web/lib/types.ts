@@ -20,6 +20,8 @@ export type PostSummary = {
   bookPages?: number | null;
   amazonUrl?: string | null;
   author: string;
+  authorName?: string | null;
+  categoryId?: string;
   publishedAt: string;
   readingTime: number;
   tags: string[];

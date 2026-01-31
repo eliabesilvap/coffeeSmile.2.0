@@ -1,11 +1,12 @@
 import Link from 'next/link';
+import { categoryUrl } from '@/lib/routes';
 
 const navItems = [
   { href: '/', label: 'Início' },
-  { href: '/categoria/livros', label: 'Livros' },
-  { href: '/categoria/teologia', label: 'Teologia' },
-  { href: '/categoria/devocional', label: 'Devocional' },
-  { href: '/categoria/cafe', label: 'Café' },
+  { href: categoryUrl('livros'), label: 'Livros' },
+  { href: categoryUrl('teologia'), label: 'Teologia' },
+  { href: categoryUrl('devocional'), label: 'Devocional' },
+  { href: categoryUrl('cafe'), label: 'Café' },
   { href: '/sobre', label: 'Sobre' },
 ];
 

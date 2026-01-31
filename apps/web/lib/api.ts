@@ -7,7 +7,7 @@ const API_URL =
 
 if (!rawApiUrl && process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line no-console
-  console.warn('NEXT_PUBLIC_API_URL nao definido. Usando http://localhost:3001');
+  console.warn('NEXT_PUBLIC_API_URL não definido. Usando http://localhost:3001');
 }
 
 const LIST_REVALIDATE_SECONDS = 60;
@@ -31,7 +31,7 @@ async function fetchJson<T>(url: string, revalidate: number): Promise<T> {
       const details = snippet ? ` - ${snippet}` : '';
       throw new Error(`Erro ${response.status} em ${url}${details}`);
     }
-    throw new Error('Nao foi possivel carregar.');
+    throw new Error('Não foi possível carregar.');
   }
 
   return response.json() as Promise<T>;

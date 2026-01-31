@@ -14,14 +14,16 @@ export function generateMetadata({
   searchParams: { page?: string; q?: string; tag?: string };
 }): Metadata {
   const description =
-    'Resenhas de livros cristaos, teologia, devocionais e tudo sobre cafe: metodos, noticias e curiosidades.';
+    'Resenhas de livros cristãos, teologia, devocionais e tudo sobre café: métodos, notícias e curiosidades.';
   const canonical = absoluteUrl('/');
   const hasFilters =
     Boolean(searchParams.q || searchParams.tag) ||
     (Boolean(searchParams.page) && searchParams.page !== '1');
 
   return {
-    title: 'Inicio',
+    title: {
+      absolute: 'CoffeeSmile — Fé, Livros e Café',
+    },
     description,
     alternates: {
       canonical,
@@ -70,8 +72,8 @@ export default async function Home({
   return (
     <>
       <PageHero
-        title="Leitura, teologia e cafe na mesma mesa"
-        subtitle="Resenhas de livros cristaos, reflexoes devocionais e guias praticos de cafe para o teu dia a dia."
+        title="Leitura, teologia e café na mesma mesa"
+        subtitle="Resenhas de livros cristãos, reflexões devocionais e guias práticos de café para o teu dia a dia."
       />
       <LayoutShell>
         <div className="grid gap-12 lg:grid-cols-[2.3fr_1fr]">
