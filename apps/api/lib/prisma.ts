@@ -1,21 +1,23 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
+
+type PrismaClientWithLogs = PrismaClient<Prisma.PrismaClientOptions, 'error'>;
 
 type PrismaGlobal = {
-  prisma?: PrismaClient;
+  prisma?: PrismaClientWithLogs;
   prismaPoolerWarningLogged?: boolean;
 };
 
 const globalForPrisma = globalThis as unknown as PrismaGlobal;
 
 const isNewPrismaClient = !globalForPrisma.prisma;
-const prisma =
+const prisma: PrismaClientWithLogs =
   globalForPrisma.prisma ??
   new PrismaClient({
     log: [{ emit: 'event', level: 'error' }],
   });
 
 if (isNewPrismaClient) {
-  prisma.$on('error', (event) => {
+  prisma.$on('error', (event: Prisma.LogEvent<'error'>) => {
     console.error(
       JSON.stringify({
         level: 'error',
