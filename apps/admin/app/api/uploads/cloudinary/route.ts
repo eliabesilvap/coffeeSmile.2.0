@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+
 import crypto from 'crypto';
 import { NextResponse } from 'next/server';
 import { getAdminSession } from '@/lib/session';
@@ -29,8 +31,13 @@ export async function POST(request: Request) {
     const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
 
     if (!cloudName || !apiKey || !apiSecret) {
+      const missing = [
+        !cloudName ? 'CLOUDINARY_CLOUD_NAME' : null,
+        !apiKey ? 'CLOUDINARY_API_KEY' : null,
+        !apiSecret ? 'CLOUDINARY_API_SECRET' : null,
+      ].filter(Boolean) as string[];
       return NextResponse.json(
-        { message: 'Configuracao do Cloudinary incompleta.' },
+        { message: 'Configuracao do Cloudinary incompleta.', missing },
         { status: 500 },
       );
     }
