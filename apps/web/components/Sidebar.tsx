@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getImage } from '@/lib/cloudinary';
+import { resolvePostCoverImage } from '@/lib/post-images';
 import { Category, PostSummary } from '@/lib/types';
 import { formatDate } from '@/lib/format';
 import { categoryUrl, postUrl } from '@/lib/routes';
@@ -103,12 +103,12 @@ export function RecentPosts({ posts }: { posts: PostSummary[] }) {
             <Link href={postUrl(post.slug)} className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl">
               <Image
                 src={
-                  getImage(post.coverImageUrl, 'thumb') ||
+                  resolvePostCoverImage(post, 'thumb') ||
                   '/images/cover-default.svg'
                 }
                 alt={post.title}
                 fill
-                className="object-cover"
+                className="object-cover object-center"
                 sizes="64px"
               />
             </Link>

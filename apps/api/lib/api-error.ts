@@ -26,19 +26,17 @@ function getDatabaseInfo(url: string | undefined): DbInfo | null {
 export function apiErrorResponse(route: string, error: unknown) {
   logApiError(route, error);
 
+  if (error instanceof Prisma.PrismaClientInitializationError) {
+    const info = getDatabaseInfo(process.env.DATABASE_URL);
+    const target = info ? `${info.host}:${info.port}/${info.database}` : 'DATABASE_URL';
+    const message =
+      process.env.NODE_ENV === 'production'
+        ? 'Banco indisponivel. Tente novamente em instantes.'
+        : `Banco indisponivel (${target}). Verifique docker compose ps.`;
+    return NextResponse.json({ message }, { status: 503 });
+  }
+
   if (process.env.NODE_ENV !== 'production') {
-    if (error instanceof Prisma.PrismaClientInitializationError) {
-      const info = getDatabaseInfo(process.env.DATABASE_URL);
-      const target = info
-        ? `${info.host}:${info.port}/${info.database}`
-        : 'DATABASE_URL';
-      return NextResponse.json(
-        {
-          message: `Banco indisponivel (${target}). Verifique docker compose ps.`,
-        },
-        { status: 503 },
-      );
-    }
     return NextResponse.json(
       { message: 'Erro interno na API. Verifique os logs do servidor.' },
       { status: 500 },

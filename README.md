@@ -69,6 +69,14 @@ apps/admin # Painel administrativo
 - `apps/api/.env.local`: `DATABASE_URL`.
 - `apps/web/.env.local`: `NEXT_PUBLIC_API_URL`.
 
+## Deploy no Render + Neon (pooler)
+- Em PRODUCAO, usa a **Pooled connection string** do Neon no `DATABASE_URL`.
+- Exemplo (substitui user, password, host e db):
+```bash
+DATABASE_URL="postgresql://user:password@host/db?sslmode=require&pgbouncer=true&connection_limit=1&pool_timeout=20"
+```
+- Evita rodar `prisma migrate deploy` automaticamente no boot. Faz migrations em job/manual.
+
 ## Deploy na Vercel (evitar build do apps/api)
 Cria dois projetos na Vercel (um para `admin` e outro para `web`) e define:
 - **Root Directory**: `apps/admin` ou `apps/web`

@@ -19,6 +19,7 @@ const postInputSchema = z.object({
   categoryId: z.string().trim().min(1),
   coverImageUrl: z.string().trim().min(1).nullable().optional(),
   coverImagePublicId: z.string().trim().min(1).nullable().optional(),
+  bookCoverImageUrl: z.string().trim().min(1).nullable().optional(),
   bookTitle: z.string().trim().min(1).nullable().optional(),
   bookAuthor: z.string().trim().min(1).nullable().optional(),
   bookTranslator: z.string().trim().min(1).nullable().optional(),
@@ -66,6 +67,7 @@ function mapPostSummary(post: {
   excerpt: string;
   content?: string;
   coverImageUrl: string | null;
+  bookCoverImageUrl: string | null;
   bookTitle: string | null;
   bookAuthor: string | null;
   bookTranslator: string | null;
@@ -90,6 +92,7 @@ function mapPostSummary(post: {
     slug: post.slug,
     excerpt: buildExcerpt(post.excerpt, post.content ?? ''),
     coverImageUrl: post.coverImageUrl ?? null,
+    bookCoverImageUrl: post.bookCoverImageUrl ?? null,
     bookTitle: post.bookTitle ?? null,
     bookAuthor: post.bookAuthor ?? null,
     bookTranslator: post.bookTranslator ?? null,
@@ -117,6 +120,7 @@ function mapPostDetail(post: {
   excerpt: string;
   content: string;
   coverImageUrl: string | null;
+  bookCoverImageUrl: string | null;
   bookTitle: string | null;
   bookAuthor: string | null;
   bookTranslator: string | null;
@@ -190,6 +194,7 @@ export async function GET(
         excerpt: true,
         content: true,
         coverImageUrl: true,
+        bookCoverImageUrl: true,
         bookTitle: true,
         bookAuthor: true,
         bookTranslator: true,
@@ -289,6 +294,7 @@ export async function PUT(
         categoryId: parsed.data.categoryId,
         coverImageUrl: parsed.data.coverImageUrl ?? null,
         coverImagePublicId: parsed.data.coverImagePublicId ?? null,
+        bookCoverImageUrl: parsed.data.bookCoverImageUrl ?? null,
         bookTitle: parsed.data.bookTitle ?? null,
         bookAuthor: parsed.data.bookAuthor ?? null,
         bookTranslator: parsed.data.bookTranslator ?? null,

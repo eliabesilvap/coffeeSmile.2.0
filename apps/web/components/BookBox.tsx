@@ -34,12 +34,12 @@ export function BookBox({
   return (
     <section className="rounded-3xl border border-brand-100 bg-white px-6 py-8 shadow-sm">
       <div className="grid gap-6 md:grid-cols-[minmax(0,180px)_minmax(0,1fr)]">
-        <div className="relative mx-auto h-56 w-40 overflow-hidden rounded-2xl bg-brand-50 md:mx-0">
+        <div className="relative mx-auto w-40 aspect-[2/3] overflow-hidden rounded-2xl bg-brand-50 md:mx-0">
           <Image
             src={coverImage}
             alt={title}
             fill
-            className="object-cover"
+            className="object-cover object-center"
             sizes="(max-width: 768px) 50vw, 180px"
           />
         </div>

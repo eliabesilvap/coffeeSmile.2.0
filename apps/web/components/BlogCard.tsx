@@ -1,13 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getImage } from '@/lib/cloudinary';
+import { resolvePostCoverImage } from '@/lib/post-images';
 import { PostSummary } from '@/lib/types';
 import { formatDate } from '@/lib/format';
 import { postUrl } from '@/lib/routes';
 
 export function BlogCard({ post }: { post: PostSummary }) {
   const coverImage =
-    getImage(post.coverImageUrl, 'card') || '/images/cover-default.svg';
+    resolvePostCoverImage(post, 'card') || '/images/cover-default.svg';
 
   return (
     <article className="group overflow-hidden rounded-3xl border border-brand-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-soft">
@@ -16,7 +16,7 @@ export function BlogCard({ post }: { post: PostSummary }) {
           src={coverImage}
           alt={post.title}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, 33vw"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-900/70 via-brand-900/10 to-transparent" />

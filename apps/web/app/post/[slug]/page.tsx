@@ -8,7 +8,7 @@ import { BookTechnicalSheet } from '@/components/BookTechnicalSheet';
 import { LayoutShell } from '@/components/LayoutShell';
 import { PageHero } from '@/components/PageHero';
 import { Sidebar } from '@/components/Sidebar';
-import { getImage } from '@/lib/cloudinary';
+import { resolveBookCoverSource, resolvePostCoverImage } from '@/lib/post-images';
 import { getCategories, getPost, getPosts } from '@/lib/api';
 import { deriveCategoriesFromPosts } from '@/lib/categories';
 import { formatDate } from '@/lib/format';
@@ -26,7 +26,7 @@ export async function generateMetadata({
     const canonical = absoluteUrl(postUrl(post.slug));
     const description =
       post.excerpt?.trim() || `Leia "${post.title}" no CoffeeSmile.`;
-    const rawCoverImage = post.coverImageUrl ? getImage(post.coverImageUrl, 'hero') : null;
+    const rawCoverImage = resolvePostCoverImage(post, 'hero');
     const coverImageUrl = rawCoverImage
       ? rawCoverImage.startsWith('http')
         ? rawCoverImage
@@ -85,8 +85,8 @@ export async function generateMetadata({
 export default async function PostPage({ params }: { params: { slug: string } }) {
   const postResponse = await getPost(params.slug);
   const post = postResponse.data;
-  const coverImage =
-    getImage(post.coverImageUrl, 'hero') || '/images/cover-default.svg';
+  const coverImage = resolvePostCoverImage(post, 'hero') || '/images/cover-default.svg';
+  const bookCoverSource = resolveBookCoverSource(post);
   const authorName = post.authorName?.trim() || post.author?.trim() || 'CoffeeSmile';
   const canonical = absoluteUrl(postUrl(post.slug));
   const seoDescription =
@@ -158,7 +158,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 alt={post.title}
                 fill
                 priority
-                className="object-cover"
+                className="object-cover object-center"
                 sizes="(max-width: 768px) 100vw, 60vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-900/50 to-transparent" />
@@ -205,7 +205,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
             <BookBox
               title={post.bookTitle}
               amazonUrl={post.amazonUrl}
-              coverImageUrl={post.coverImageUrl}
+              coverImageUrl={bookCoverSource}
               author={post.bookAuthor}
               translator={post.bookTranslator}
               year={post.bookYear}

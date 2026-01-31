@@ -14,6 +14,7 @@ export const postSummarySchema = z.object({
   excerpt: z.string(),
   content: z.string().optional(),
   coverImageUrl: z.string().min(1).nullable().optional(),
+  bookCoverImageUrl: z.string().min(1).nullable().optional(),
   bookTitle: z.string().min(1).nullable().optional(),
   bookAuthor: z.string().min(1).nullable().optional(),
   bookTranslator: z.string().min(1).nullable().optional(),

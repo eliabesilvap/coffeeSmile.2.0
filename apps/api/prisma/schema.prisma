@@ -27,6 +27,7 @@ model Post {
   content     String
   coverImageUrl      String?
   coverImagePublicId String?
+  bookCoverImageUrl  String?
   bookTitle   String?
   bookAuthor  String?
   bookTranslator String?

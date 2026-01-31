@@ -12,6 +12,7 @@ export type PostSummary = {
   excerpt: string;
   content?: string;
   coverImageUrl?: string | null;
+  bookCoverImageUrl?: string | null;
   bookTitle?: string | null;
   bookAuthor?: string | null;
   bookTranslator?: string | null;
