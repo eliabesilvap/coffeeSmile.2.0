@@ -12,7 +12,7 @@ const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const postInputSchema = z.object({
   title: z.string().trim().min(3),
   slug: z.string().trim().min(3).regex(slugRegex),
-  excerpt: z.string().trim().min(10),
+  excerpt: z.string().trim().min(0),
   content: z.string().trim().min(10),
   tags: z.array(z.string().trim().min(1)).max(20),
   status: z.enum(['draft', 'published']),
@@ -38,11 +38,33 @@ function computeReadingTime(content: string) {
   return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
 }
 
+function stripMarkdown(input: string) {
+  return input
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/!\[[^\]]*]\([^)]*\)/g, ' ')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/[#>*_~>-]+/g, ' ')
+    .replace(/\r?\n|\r/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function buildExcerpt(excerpt: string, content: string) {
+  const trimmed = excerpt.trim();
+  if (trimmed.length >= 10) return trimmed;
+  const clean = stripMarkdown(content);
+  const snippet = clean.slice(0, 180).trim();
+  if (snippet.length >= 10) return snippet;
+  return clean || 'Leia a publicação completa no CoffeeSmile.';
+}
+
 function mapPostSummary(post: {
   id: string;
   title: string;
   slug: string;
   excerpt: string;
+  content?: string;
   coverImageUrl: string | null;
   bookTitle: string | null;
   bookAuthor: string | null;
@@ -55,6 +77,8 @@ function mapPostSummary(post: {
   authorName: string | null;
   categoryId: string;
   publishedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
   readingTime: number;
   tags: string[];
   status: 'draft' | 'published';
@@ -64,7 +88,7 @@ function mapPostSummary(post: {
     id: post.id,
     title: post.title,
     slug: post.slug,
-    excerpt: post.excerpt,
+    excerpt: buildExcerpt(post.excerpt, post.content ?? ''),
     coverImageUrl: post.coverImageUrl ?? null,
     bookTitle: post.bookTitle ?? null,
     bookAuthor: post.bookAuthor ?? null,
@@ -77,6 +101,8 @@ function mapPostSummary(post: {
     authorName: post.authorName ?? null,
     categoryId: post.categoryId,
     publishedAt: post.publishedAt.toISOString(),
+    createdAt: post.createdAt.toISOString(),
+    updatedAt: post.updatedAt.toISOString(),
     readingTime: post.readingTime,
     tags: post.tags,
     status: post.status,
@@ -102,6 +128,8 @@ function mapPostDetail(post: {
   authorName: string | null;
   categoryId: string;
   publishedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
   readingTime: number;
   tags: string[];
   status: 'draft' | 'published';
@@ -160,6 +188,7 @@ export async function GET(
         title: true,
         slug: true,
         excerpt: true,
+        content: true,
         coverImageUrl: true,
         bookTitle: true,
         bookAuthor: true,
@@ -172,6 +201,8 @@ export async function GET(
         authorName: true,
         categoryId: true,
         publishedAt: true,
+        createdAt: true,
+        updatedAt: true,
         readingTime: true,
         tags: true,
         status: true,

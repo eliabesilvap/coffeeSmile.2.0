@@ -28,23 +28,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   const publishedPosts = posts.filter((post) => post.status === 'published');
+  const publishedPostTimestamps = publishedPosts
+    .map((post) => new Date(post.updatedAt ?? post.publishedAt ?? 0).getTime())
+    .filter((timestamp) => Number.isFinite(timestamp) && timestamp > 0);
+  const latestPostModified =
+    publishedPostTimestamps.length > 0 ? new Date(Math.max(...publishedPostTimestamps)) : now;
 
   return [
     {
       url: baseUrl,
-      lastModified: now,
+      lastModified: latestPostModified,
     },
     {
       url: `${baseUrl}/sobre`,
-      lastModified: now,
+      lastModified: latestPostModified,
     },
     ...categories.map((category) => ({
       url: `${baseUrl}${categoryUrl(category.slug)}`,
-      lastModified: now,
+      lastModified: latestPostModified,
     })),
     ...publishedPosts.map((post) => ({
       url: `${baseUrl}${postUrl(post.slug)}`,
-      lastModified: new Date(post.publishedAt),
+      lastModified:
+        post.updatedAt || post.publishedAt
+          ? new Date(post.updatedAt ?? post.publishedAt)
+          : latestPostModified,
     })),
   ];
 }

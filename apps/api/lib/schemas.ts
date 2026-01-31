@@ -25,6 +25,8 @@ export const postSummarySchema = z.object({
   authorName: z.string().min(1).nullable().optional(),
   categoryId: z.string().optional(),
   publishedAt: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
   readingTime: z.number(),
   tags: z.array(z.string()),
   status: z.enum(['draft', 'published']),

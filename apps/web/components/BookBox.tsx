@@ -94,7 +94,7 @@ export function BookBox({
               </a>
               {showAffiliateNote ? (
                 <span className="text-[10px] uppercase tracking-[0.25em] text-brand-400">
-                  Link de afiliado
+                  
                 </span>
               ) : null}
             </div>

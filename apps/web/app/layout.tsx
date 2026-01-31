@@ -20,8 +20,8 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: {
-    default: 'CoffeeSmile Blog',
-    template: '%s | CoffeeSmile Blog',
+    default: 'CoffeeSmile — Fé, Livros e Café',
+    template: '%s | CoffeeSmile',
   },
   description:
     'Resenhas de livros cristãos, teologia, devocionais e tudo sobre café: métodos, notícias e curiosidades.',
@@ -36,17 +36,17 @@ export const metadata: Metadata = {
   },
   manifest: '/site.webmanifest',
   openGraph: {
-    title: 'CoffeeSmile Blog',
+    title: 'CoffeeSmile — Fé, Livros e Café',
     description:
       'Resenhas de livros cristãos, teologia, devocionais e tudo sobre café: métodos, notícias e curiosidades.',
     type: 'website',
-    locale: 'pt_PT',
+    locale: 'pt_BR',
     images: [defaultOgImage],
-    siteName: 'CoffeeSmile Blog',
+    siteName: 'CoffeeSmile',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CoffeeSmile Blog',
+    title: 'CoffeeSmile — Fé, Livros e Café',
     description:
       'Resenhas de livros cristãos, teologia, devocionais e tudo sobre café: métodos, notícias e curiosidades.',
     images: [defaultOgImage.url],
@@ -60,7 +60,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-PT" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="pt-BR" className={`${inter.variable} ${playfair.variable}`}>
       <body className="bg-grain">
         <Header />
         <main>{children}</main>

@@ -63,6 +63,13 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const excerptMissing = !excerpt.trim();
+  const coverMissing = !coverImageUrl?.trim();
+
+  const recommendations = [
+    excerptMissing ? 'Adicione um resumo para melhorar o SEO e os cards.' : null,
+    coverMissing ? 'Inclua uma capa para enriquecer a publicação.' : null,
+  ].filter(Boolean) as string[];
 
   useEffect(() => {
     if (!slugTouched) {
@@ -79,15 +86,49 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
     [tagsInput]
   );
 
+  function generateExcerptFromContent(input: string) {
+    const text = input
+      .replace(/```[\s\S]*?```/g, ' ')
+      .replace(/`[^`]*`/g, ' ')
+      .replace(/!\[[^\]]*]\([^)]*\)/g, ' ')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/[#>*_~>-]+/g, ' ')
+      .replace(/\r?\n|\r/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (!text) return '';
+    return text.slice(0, 180).trim();
+  }
+
   async function submitForm(nextStatus: PostFormData['status']) {
-    setLoading(true);
     setError('');
     setMessage('');
+
+    const normalizedSlug = slugify(slug);
+    if (!title.trim()) {
+      setError('Título é obrigatório.');
+      return;
+    }
+    if (!normalizedSlug) {
+      setError('Slug é obrigatório.');
+      return;
+    }
+    if (!content.trim()) {
+      setError('Conteúdo é obrigatório.');
+      return;
+    }
+    if (!categoryId) {
+      setError('Categoria é obrigatória.');
+      return;
+    }
+
+    setLoading(true);
     setStatus(nextStatus);
 
     const payload = {
       title,
-      slug: slugify(slug),
+      slug: normalizedSlug,
       excerpt,
       content,
       tags,
@@ -172,16 +213,36 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
             />
           </div>
           <div>
-            <label className="admin-label" htmlFor="excerpt">
-              Excerto
-            </label>
+            <div className="flex items-center justify-between gap-3">
+              <label className="admin-label" htmlFor="excerpt">
+                Resumo
+              </label>
+              {excerptMissing ? (
+                <button
+                  type="button"
+                  className="text-xs font-semibold text-brand-700 hover:text-brand-900"
+                  onClick={() => {
+                    const generated = generateExcerptFromContent(content);
+                    if (generated) {
+                      setExcerpt(generated);
+                    } else {
+                      setError('Adiciona conteúdo antes de gerar o resumo.');
+                    }
+                  }}
+                >
+                  Gerar resumo
+                </button>
+              ) : null}
+            </div>
             <textarea
               id="excerpt"
               className="admin-input min-h-[90px]"
               value={excerpt}
               onChange={(event) => setExcerpt(event.target.value)}
-              required
             />
+            <p className="mt-2 text-xs text-slate-500">
+              Use um texto curto para melhorar o SEO e os cards de partilha.
+            </p>
           </div>
           <div>
             <label className="admin-label" htmlFor="authorName">
@@ -227,7 +288,7 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
           </div>
           <div>
             <label className="admin-label" htmlFor="status">
-              Estado
+              Status
             </label>
             <select
               id="status"
@@ -355,6 +416,17 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
           </div>
         </div>
 
+        {recommendations.length > 0 ? (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
+            <p className="font-semibold">Recomendações</p>
+            <ul className="mt-2 space-y-1">
+              {recommendations.map((item) => (
+                <li key={item}>• {item}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
         <div className="flex flex-wrap gap-3">
           <button
             type="button"
@@ -362,7 +434,7 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
             onClick={() => submitForm('draft')}
             disabled={loading}
           >
-            Guardar rascunho
+            Salvar rascunho
           </button>
           <button
             type="button"

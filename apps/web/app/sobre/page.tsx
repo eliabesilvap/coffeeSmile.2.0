@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     description:
       'Conhece o CoffeeSmile, um blog sobre livros cristãos, fé no dia a dia e cultura do café.',
     type: 'website',
-    locale: 'pt_PT',
+    locale: 'pt_BR',
     url: absoluteUrl('/sobre'),
     images: [defaultOgImage],
   },

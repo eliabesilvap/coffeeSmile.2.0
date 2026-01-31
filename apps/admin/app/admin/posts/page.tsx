@@ -158,13 +158,13 @@ export default async function PostsPage({
             id="q"
             name="q"
             className="admin-input"
-            placeholder="Título ou excerto"
+            placeholder="Título ou resumo"
             defaultValue={q}
           />
         </div>
         <div className="w-full lg:w-48">
           <label className="admin-label" htmlFor="status">
-            Estado
+            Status
           </label>
           <select id="status" name="status" className="admin-input" defaultValue={status ?? ''}>
             <option value="">Todos</option>

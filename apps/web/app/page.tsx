@@ -32,7 +32,7 @@ export function generateMetadata({
       title: 'CoffeeSmile Blog',
       description,
       type: 'website',
-      locale: 'pt_PT',
+      locale: 'pt_BR',
       url: canonical,
       images: [defaultOgImage],
     },

@@ -11,13 +11,13 @@ export const postInputSchema = z
       .string()
       .min(3, 'Slug demasiado curto.')
       .regex(slugRegex, 'Slug inválido.'),
-    excerpt: z.string().min(10, 'Excerto demasiado curto.'),
+    excerpt: z.string().min(0),
     content: z.string().min(10, 'Conteúdo demasiado curto.'),
     categoryId: z.string().min(1, 'Categoria obrigatória.'),
     tags: z.array(z.string().min(1)).max(20).default([]),
     status: postStatusSchema,
-    coverImageUrl: z.string().trim().min(1, 'Imagem de capa invalida.').optional().nullable(),
-    coverImagePublicId: z.string().trim().min(1, 'Public ID invalido.').optional().nullable(),
+    coverImageUrl: z.string().trim().min(1, 'Imagem de capa inválida.').optional().nullable(),
+    coverImagePublicId: z.string().trim().min(1, 'Public ID inválido.').optional().nullable(),
     bookTitle: z.string().trim().min(1, 'Título do livro inválido.').optional().nullable(),
     bookAuthor: z.string().trim().min(1, 'Autor inválido.').optional().nullable(),
     bookTranslator: z.string().trim().min(1, 'Tradução inválida.').optional().nullable(),

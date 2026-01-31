@@ -133,11 +133,11 @@ export function CoverUpload({ value, publicId, onChange }: CoverUploadProps) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold text-slate-900">Imagem de capa</p>
-          <p className="text-xs text-slate-500">JPG, PNG ou WebP ate 5MB.</p>
+          <p className="text-xs text-slate-500">JPG, PNG ou WebP até 5MB.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button type="button" className="admin-button-secondary" onClick={handlePick} disabled={uploading}>
-            {uploading ? 'A carregar...' : 'Carregar capa'}
+            {uploading ? 'Enviando...' : 'Enviar capa'}
           </button>
           {value ? (
             <button type="button" className="admin-button-secondary" onClick={handleClear} disabled={uploading}>

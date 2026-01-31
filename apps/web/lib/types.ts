@@ -23,6 +23,8 @@ export type PostSummary = {
   authorName?: string | null;
   categoryId?: string;
   publishedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   readingTime: number;
   tags: string[];
   status: 'draft' | 'published';

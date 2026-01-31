@@ -14,7 +14,7 @@ const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const postInputSchema = z.object({
   title: z.string().trim().min(3),
   slug: z.string().trim().min(3).regex(slugRegex),
-  excerpt: z.string().trim().min(10),
+  excerpt: z.string().trim().min(0),
   content: z.string().trim().min(10),
   tags: z.array(z.string().trim().min(1)).max(20),
   status: z.enum(['draft', 'published']),
@@ -38,6 +38,27 @@ function ensureAdminRequest(request: Request) {
 function computeReadingTime(content: string) {
   const words = content.trim().split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
+}
+
+function stripMarkdown(input: string) {
+  return input
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/!\[[^\]]*]\([^)]*\)/g, ' ')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/[#>*_~>-]+/g, ' ')
+    .replace(/\r?\n|\r/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function buildExcerpt(excerpt: string, content: string) {
+  const trimmed = excerpt.trim();
+  if (trimmed.length >= 10) return trimmed;
+  const clean = stripMarkdown(content);
+  const snippet = clean.slice(0, 180).trim();
+  if (snippet.length >= 10) return snippet;
+  return clean || 'Leia a publicação completa no CoffeeSmile.';
 }
 
 function sanitizeParam(value: string | null) {
@@ -110,7 +131,7 @@ export async function GET(request: Request) {
         title: true,
         slug: true,
         excerpt: true,
-        ...(includeContent ? { content: true } : {}),
+        content: true,
         coverImageUrl: true,
         bookTitle: true,
         bookAuthor: true,
@@ -123,6 +144,8 @@ export async function GET(request: Request) {
         authorName: true,
         categoryId: true,
         publishedAt: true,
+        createdAt: true,
+        updatedAt: true,
         readingTime: true,
         tags: true,
         status: true,
@@ -144,7 +167,7 @@ export async function GET(request: Request) {
         id: post.id,
         title: post.title,
         slug: post.slug,
-        excerpt: post.excerpt,
+        excerpt: buildExcerpt(post.excerpt, post.content),
         ...(includeContent ? { content: post.content } : {}),
         coverImageUrl: post.coverImageUrl ?? null,
         bookTitle: post.bookTitle ?? null,
@@ -158,6 +181,8 @@ export async function GET(request: Request) {
         authorName: post.authorName ?? null,
         categoryId: post.categoryId,
         publishedAt: post.publishedAt.toISOString(),
+        createdAt: post.createdAt.toISOString(),
+        updatedAt: post.updatedAt.toISOString(),
         readingTime: post.readingTime,
         tags: post.tags,
         status: post.status,

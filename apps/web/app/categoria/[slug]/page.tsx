@@ -48,7 +48,7 @@ export async function generateMetadata({
       title,
       description,
       type: 'website',
-      locale: 'pt_PT',
+      locale: 'pt_BR',
       url: canonical,
       images: [defaultOgImage],
     },

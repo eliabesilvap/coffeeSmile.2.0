@@ -24,7 +24,8 @@ export async function generateMetadata({
     const postResponse = await getPost(params.slug);
     const post = postResponse.data;
     const canonical = absoluteUrl(postUrl(post.slug));
-    const description = post.excerpt;
+    const description =
+      post.excerpt?.trim() || `Leia "${post.title}" no CoffeeSmile.`;
     const rawCoverImage = post.coverImageUrl ? getImage(post.coverImageUrl, 'hero') : null;
     const coverImageUrl = rawCoverImage
       ? rawCoverImage.startsWith('http')
@@ -54,7 +55,7 @@ export async function generateMetadata({
         title: post.title,
         description,
         type: 'article',
-        locale: 'pt_PT',
+        locale: 'pt_BR',
         url: canonical,
         images: ogImages,
       },
@@ -87,6 +88,15 @@ export default async function PostPage({ params }: { params: { slug: string } })
   const coverImage =
     getImage(post.coverImageUrl, 'hero') || '/images/cover-default.svg';
   const authorName = post.authorName?.trim() || post.author?.trim() || 'CoffeeSmile';
+  const canonical = absoluteUrl(postUrl(post.slug));
+  const seoDescription =
+    post.excerpt?.trim() || `Leia "${post.title}" no CoffeeSmile.`;
+  const jsonLdImage = coverImage.startsWith('http') ? coverImage : absoluteUrl(coverImage);
+  const datePublished = post.publishedAt
+    ? new Date(post.publishedAt).toISOString()
+    : undefined;
+  const dateModifiedSource = post.updatedAt ?? post.publishedAt;
+  const dateModified = dateModifiedSource ? new Date(dateModifiedSource).toISOString() : undefined;
 
   const [categoriesResponse, recentPostsResponse, categoryPostsResponse] = await Promise.all([
     getCategories(),
@@ -110,15 +120,21 @@ export default async function PostPage({ params }: { params: { slug: string } })
 
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'Article',
+    '@type': 'BlogPosting',
     headline: post.title,
-    description: post.excerpt,
-    datePublished: post.publishedAt,
-    image: coverImage.startsWith('http') ? coverImage : absoluteUrl(coverImage),
-    mainEntityOfPage: absoluteUrl(postUrl(post.slug)),
+    description: seoDescription,
+    datePublished,
+    dateModified,
+    image: [jsonLdImage],
+    url: canonical,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
     author: {
-      '@type': 'Person',
-      name: authorName,
+      '@type': 'Organization',
+      name: 'CoffeeSmile',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'CoffeeSmile',
     },
   };
 
@@ -156,7 +172,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
               <span className="h-1 w-1 rounded-full bg-brand-300" aria-hidden />
               <span>Por {authorName}</span>
             </div>
-            <div className="prose prose-lg max-w-none prose-headings:font-display prose-headings:text-brand-900 prose-headings:mt-10 prose-headings:mb-4 prose-p:text-brand-700 prose-p:text-base prose-p:leading-relaxed prose-p:my-7 prose-blockquote:border-l-4 prose-blockquote:border-brand-200 prose-blockquote:bg-brand-50/60 prose-blockquote:py-3 prose-blockquote:px-6">
+            <div className="prose prose-lg mx-auto max-w-3xl prose-headings:font-display prose-headings:text-brand-900 prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-headings:mt-10 prose-headings:mb-4 prose-p:text-brand-700 prose-p:text-base prose-p:leading-relaxed prose-p:my-7 prose-ul:my-6 prose-ol:my-6 prose-li:my-1 prose-blockquote:border-l-4 prose-blockquote:border-brand-200 prose-blockquote:bg-brand-50/60 prose-blockquote:py-3 prose-blockquote:px-6 prose-blockquote:my-6 lg:mx-0">
               <ReactMarkdown
                 skipHtml
                 components={{
