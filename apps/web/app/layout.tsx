@@ -4,6 +4,7 @@ import './globals.css';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
 import { ScrollToTop } from '@/components/ScrollToTop';
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { defaultOgImage, siteUrl } from '@/lib/site';
 
 const inter = Inter({
@@ -17,6 +18,8 @@ const playfair = Playfair_Display({
   variable: '--font-playfair',
   display: 'swap',
 });
+
+const GA4_ID = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID;
 
 export const metadata: Metadata = {
   title: {
@@ -61,6 +64,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className={`${inter.variable} ${playfair.variable}`}>
+      <head>
+        <GoogleAnalytics measurementId={GA4_ID} />
+      </head>
       <body className="bg-grain">
         <Header />
         <main>{children}</main>
