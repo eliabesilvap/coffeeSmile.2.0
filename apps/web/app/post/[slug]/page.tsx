@@ -7,6 +7,7 @@ import { BookBox } from '@/components/BookBox';
 import { BookTechnicalSheet } from '@/components/BookTechnicalSheet';
 import { LayoutShell } from '@/components/LayoutShell';
 import { PageHero } from '@/components/PageHero';
+import { PostShare } from '@/components/PostShare';
 import { Sidebar } from '@/components/Sidebar';
 import { resolveBookCoverSource, resolvePostCoverImage } from '@/lib/post-images';
 import { getCategories, getPost, getPosts } from '@/lib/api';
@@ -184,17 +185,6 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 {post.content}
               </ReactMarkdown>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
-                <Link
-                  key={tag}
-                  href={`${categoryUrl(post.category.slug)}?tag=${tag}`}
-                  className="rounded-full border border-brand-200 px-3 py-1 text-xs text-brand-700 hover:border-brand-400"
-                >
-                  {tag}
-                </Link>
-              ))}
-            </div>
             {!post.bookTitle && (
               <BookTechnicalSheet
                 author={post.bookAuthor}
@@ -214,6 +204,24 @@ export default async function PostPage({ params }: { params: { slug: string } })
               publisher={post.bookPublisher}
               pages={post.bookPages}
             />
+            <section
+              aria-label="Convite editorial"
+              className="rounded-2xl border border-brand-100 bg-brand-50/70 px-6 py-4 text-sm text-brand-700"
+            >
+              <p className="text-brand-700">Se este conteúdo te ajudou, compartilhe com alguém.</p>
+              <PostShare title={post.title} className="mt-3" />
+            </section>
+            <div className="flex flex-wrap gap-2">
+              {post.tags.map((tag) => (
+                <Link
+                  key={tag}
+                  href={`${categoryUrl(post.category.slug)}?tag=${tag}`}
+                  className="rounded-full border border-brand-200 px-3 py-1 text-xs text-brand-700 hover:border-brand-400"
+                >
+                  {tag}
+                </Link>
+              ))}
+            </div>
             {(previousPost || nextPost) && (
               <nav className="grid gap-4 rounded-3xl border border-brand-100 bg-white p-6 text-sm shadow-sm md:grid-cols-2">
                 <div>
@@ -248,12 +256,6 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 </div>
               </nav>
             )}
-            <section
-              aria-label="Convite editorial"
-              className="rounded-2xl border border-brand-100 bg-brand-50/70 px-6 py-4 text-sm text-brand-700"
-            >
-              <p className="text-brand-700">Se este conteúdo te ajudou, compartilhe com alguém.</p>
-            </section>
             <section className="space-y-5">
               <h2 className="text-2xl font-semibold text-brand-900">Publicações relacionadas</h2>
               <div className="grid gap-6 md:grid-cols-3">
