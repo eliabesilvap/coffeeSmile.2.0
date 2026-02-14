@@ -71,9 +71,11 @@ function sanitizeParam(value: string | null) {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
+    const isAdminRequest = ensureAdminRequest(request);
     const parsedQuery = postsQuerySchema.safeParse({
       category: sanitizeParam(searchParams.get('category')),
       categorySlug: sanitizeParam(searchParams.get('categorySlug')),
+      categoryId: sanitizeParam(searchParams.get('categoryId')),
       tag: sanitizeParam(searchParams.get('tag')),
       q: sanitizeParam(searchParams.get('q')),
       page: sanitizeParam(searchParams.get('page')),
@@ -87,15 +89,16 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: 'Parametros invalidos.' }, { status: 400 });
     }
 
-    const { category, categorySlug, tag, q, page, status, sort, limit, include } = parsedQuery.data;
+    const { category, categorySlug, categoryId, tag, q, page, status, sort, limit, include } = parsedQuery.data;
     const currentPage = page ?? 1;
     const pageSize = limit ?? DEFAULT_PAGE_SIZE;
     const includeContent = include === 'content';
     const categoryFilter = category ?? categorySlug;
-    const statusFilter = status ?? 'published';
+    const statusFilter = status ?? (isAdminRequest ? undefined : 'published');
 
     const where = {
-      status: statusFilter,
+      ...(statusFilter ? { status: statusFilter } : {}),
+      ...(categoryId ? { categoryId } : {}),
       ...(categoryFilter
         ? {
             category: {

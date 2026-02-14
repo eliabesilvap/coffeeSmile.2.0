@@ -63,6 +63,7 @@ export const postsQuerySchema = z.object({
   tag: z.string().trim().min(1).max(64).optional(),
   category: z.string().trim().min(1).max(64).optional(),
   categorySlug: z.string().trim().min(1).max(64).optional(),
+  categoryId: z.string().trim().min(1).max(64).optional(),
   q: z.string().trim().min(1).max(80).optional(),
   status: z.enum(['draft', 'published']).optional(),
   sort: z.enum(['recent']).optional(),

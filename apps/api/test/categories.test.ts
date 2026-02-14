@@ -1,14 +1,16 @@
 import { describe, it, expect, vi } from 'vitest';
 import { GET } from '@/app/api/categories/route';
 
-const prismaMock = {
-  category: {
-    findMany: vi.fn(),
+const { prismaMock } = vi.hoisted(() => ({
+  prismaMock: {
+    category: {
+      findMany: vi.fn(),
+    },
+    post: {
+      groupBy: vi.fn(),
+    },
   },
-  post: {
-    groupBy: vi.fn(),
-  },
-};
+}));
 
 vi.mock('@/lib/prisma', () => ({
   prisma: prismaMock,

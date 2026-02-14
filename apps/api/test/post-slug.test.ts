@@ -1,12 +1,14 @@
 import { describe, it, expect, vi } from 'vitest';
 import { GET } from '@/app/api/posts/[slug]/route';
 
-const prismaMock = {
-  post: {
-    findFirst: vi.fn(),
-    findMany: vi.fn(),
+const { prismaMock } = vi.hoisted(() => ({
+  prismaMock: {
+    post: {
+      findFirst: vi.fn(),
+      findMany: vi.fn(),
+    },
   },
-};
+}));
 
 vi.mock('@/lib/prisma', () => ({
   prisma: prismaMock,
@@ -21,8 +23,19 @@ describe('GET /api/posts/[slug]', () => {
       excerpt: 'Excerto 1',
       content: 'Conteudo 1',
       coverImageUrl: '/cover-1.jpg',
+      bookCoverImageUrl: null,
+      bookTitle: null,
+      bookAuthor: null,
+      bookTranslator: null,
+      bookYear: null,
+      bookPublisher: null,
+      bookPages: null,
+      amazonUrl: null,
       author: 'Autor 1',
+      authorName: null,
       publishedAt: new Date('2024-01-01T10:00:00Z'),
+      createdAt: new Date('2024-01-01T09:00:00Z'),
+      updatedAt: new Date('2024-01-01T11:00:00Z'),
       readingTime: 5,
       tags: ['cafe'],
       status: 'published' as const,
