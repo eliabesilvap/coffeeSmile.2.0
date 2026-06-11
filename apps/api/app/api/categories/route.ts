@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { apiErrorResponse } from '@/lib/api-error';
 import { logApiError } from '@/lib/logging';
 import { categoriesResponseSchema } from '@/lib/schemas';
+import { requireAdminAuth } from '@/lib/auth';
 
 const CATEGORY_CACHE_CONTROL = 'public, s-maxage=300';
 const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -58,6 +59,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const authError = requireAdminAuth(request);
+  if (authError) return authError;
+
   try {
     const payload = await request.json().catch(() => null);
     const parsed = categoryInputSchema.safeParse(payload);

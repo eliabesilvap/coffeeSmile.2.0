@@ -65,9 +65,28 @@ apps/admin # Painel administrativo
 ## Env por app (monorepo)
 - Cada app le seu proprio `.env.local` dentro da sua pasta.
 - O `.env` da raiz fica como referencia, mas nao substitui os `.env.local` dos apps.
-- `apps/admin/.env.local`: `DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` e credenciais do Cloudinary.
-- `apps/api/.env.local`: `DATABASE_URL`.
+- `apps/admin/.env.local`: `DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_API_SECRET` e credenciais do Cloudinary.
+- `apps/api/.env.local`: `DATABASE_URL`, `ADMIN_API_SECRET`.
 - `apps/web/.env.local`: `NEXT_PUBLIC_API_URL`.
+
+## ADMIN_API_SECRET (obrigatório em produção)
+
+Segredo partilhado entre o admin e a API para autenticar operações de escrita.
+Sem ele, POST/PUT/DELETE de posts e categorias retornam 500 (admin) ou 401 (API).
+
+```bash
+# Gerar o valor (fazer uma vez e usar nos dois serviços):
+openssl rand -hex 32
+```
+
+Configurar com o **mesmo valor** em:
+- Render → serviço `api` → Environment → `ADMIN_API_SECRET`
+- Render → serviço `admin` → Environment → `ADMIN_API_SECRET`
+
+**Ordem de deploy para evitar downtime:**
+1. Configurar `ADMIN_API_SECRET` no serviço `api` e fazer redeploy.
+2. Configurar `ADMIN_API_SECRET` no serviço `admin` e fazer redeploy logo a seguir.
+   (O site público continua disponível durante essa janela; só o admin fica sem escrita.)
 
 ## Deploy no Render + Neon (pooler)
 - Em PRODUCAO, usa a **Pooled connection string** do Neon no `DATABASE_URL`.

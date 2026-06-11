@@ -12,6 +12,15 @@ export async function proxyApiRequest(request: Request, path: string) {
     );
   }
 
+  const secret = process.env.ADMIN_API_SECRET;
+  if (!secret) {
+    console.error('[api-proxy] ADMIN_API_SECRET não configurada — operação recusada.');
+    return NextResponse.json(
+      { message: 'ADMIN_API_SECRET não configurada. Define a variável de ambiente no servidor.' },
+      { status: 500 },
+    );
+  }
+
   const requestUrl = new URL(request.url);
   const normalizedPath = path.replace(/^\/+/, '');
   const targetUrl = new URL(normalizedPath, baseUrl);
@@ -20,7 +29,7 @@ export async function proxyApiRequest(request: Request, path: string) {
   const headers = new Headers(request.headers);
   headers.delete('host');
   headers.delete('content-length');
-  headers.set('x-admin-request', '1');
+  headers.set('Authorization', `Bearer ${secret}`);
 
   const init: RequestInit = {
     method: request.method,

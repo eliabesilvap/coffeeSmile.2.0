@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { apiErrorResponse } from '@/lib/api-error';
 import { postResponseSchema } from '@/lib/schemas';
+import { requireAdminAuth, isAdminAuth } from '@/lib/auth';
 
 const DETAIL_CACHE_CONTROL = 'public, s-maxage=300';
 const WORDS_PER_MINUTE = 200;
@@ -29,10 +30,6 @@ const postInputSchema = z.object({
   amazonUrl: z.string().url().nullable().optional(),
   authorName: z.string().trim().min(1).nullable().optional(),
 });
-
-function ensureAdminRequest(request: Request) {
-  return request.headers.get('x-admin-request') === '1';
-}
 
 function computeReadingTime(content: string) {
   const words = content.trim().split(/\s+/).filter(Boolean).length;
@@ -150,7 +147,7 @@ export async function GET(
   { params }: { params: { slug: string } },
 ) {
   try {
-    const isAdminRequest = request.headers.get('x-admin-request') === '1';
+    const isAdminRequest = isAdminAuth(request);
     const where: Prisma.PostWhereInput = isAdminRequest
       ? {
           OR: [{ id: params.slug }, { slug: params.slug }],
@@ -250,9 +247,8 @@ export async function PUT(
   request: Request,
   { params }: { params: { slug: string } },
 ) {
-  if (!ensureAdminRequest(request)) {
-    return NextResponse.json({ message: 'Nao autorizado.' }, { status: 401 });
-  }
+  const authError = requireAdminAuth(request);
+  if (authError) return authError;
 
   try {
     const payload = await request.json().catch(() => null);
@@ -337,9 +333,8 @@ export async function DELETE(
   request: Request,
   { params }: { params: { slug: string } },
 ) {
-  if (!ensureAdminRequest(request)) {
-    return NextResponse.json({ message: 'Nao autorizado.' }, { status: 401 });
-  }
+  const authError = requireAdminAuth(request);
+  if (authError) return authError;
 
   try {
     const existing = await prisma.post.findFirst({

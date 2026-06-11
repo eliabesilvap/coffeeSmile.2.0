@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { apiErrorResponse } from '@/lib/api-error';
 import { postsQuerySchema, postsResponseSchema } from '@/lib/schemas';
+import { requireAdminAuth, isAdminAuth } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,10 +32,6 @@ const postInputSchema = z.object({
   amazonUrl: z.string().url().nullable().optional(),
   authorName: z.string().trim().min(1).nullable().optional(),
 });
-
-function ensureAdminRequest(request: Request) {
-  return request.headers.get('x-admin-request') === '1';
-}
 
 function computeReadingTime(content: string) {
   const words = content.trim().split(/\s+/).filter(Boolean).length;
@@ -71,7 +68,7 @@ function sanitizeParam(value: string | null) {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const isAdminRequest = ensureAdminRequest(request);
+    const isAdminRequest = isAdminAuth(request);
     const parsedQuery = postsQuerySchema.safeParse({
       category: sanitizeParam(searchParams.get('category')),
       categorySlug: sanitizeParam(searchParams.get('categorySlug')),
@@ -219,9 +216,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!ensureAdminRequest(request)) {
-    return NextResponse.json({ message: 'Nao autorizado.' }, { status: 401 });
-  }
+  const authError = requireAdminAuth(request);
+  if (authError) return authError;
 
   try {
     const payload = await request.json().catch(() => null);

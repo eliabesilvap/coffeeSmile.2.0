@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { apiErrorResponse } from '@/lib/api-error';
+import { requireAdminAuth } from '@/lib/auth';
 
 const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -15,6 +16,9 @@ const categoryInputSchema = z.object({
 });
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
+  const authError = requireAdminAuth(request);
+  if (authError) return authError;
+
   try {
     const payload = await request.json().catch(() => null);
     const parsed = categoryInputSchema.safeParse(payload);
@@ -61,7 +65,10 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  const authError = requireAdminAuth(request);
+  if (authError) return authError;
+
   try {
     await prisma.category.delete({ where: { id: params.id } });
     return NextResponse.json({ ok: true });
