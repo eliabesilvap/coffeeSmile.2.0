@@ -27,13 +27,62 @@ export const postInputSchema = z
     authorName: z.string().trim().min(1, 'Autor inválido.').optional().nullable(),
     amazonUrl: z.preprocess(
       (value) => (value === null || value === '' ? undefined : value),
+      z.string().regex(/^https?:\/\//, 'URL deve começar com http:// ou https://').url('URL inválida.').optional(),
+    ),
+    affiliateUrl: z.preprocess(
+      (value) => (value === null || value === '' ? undefined : value),
+      z.string().regex(/^https?:\/\//, 'URL deve começar com http:// ou https://').url('URL inválida.').optional(),
+    ),
+    affiliateButtonText: z.string().trim().min(1, 'Texto do botão inválido.').optional().nullable(),
+    affiliateImageUrl: z.preprocess(
+      (value) => (value === null || value === '' ? undefined : value),
       z.string().url('URL inválida.').optional(),
     ),
+    affiliateImagePublicId: z.string().trim().min(1).optional().nullable(),
   })
   .refine((data) => !data.bookTitle || Boolean(data.amazonUrl), {
     message: 'Link da Amazon obrigatório quando o livro estiver preenchido.',
     path: ['amazonUrl'],
-  });
+  })
+  .refine(
+    (data) => {
+      const hasUrl = Boolean(data.affiliateUrl);
+      const hasText = Boolean(data.affiliateButtonText?.trim());
+      const hasImage = Boolean(data.affiliateImageUrl);
+      if (!hasUrl && !hasText && !hasImage) return true;
+      return hasText && hasImage;
+    },
+    {
+      message: 'Texto do botão e imagem são obrigatórios quando há link de afiliado.',
+      path: ['affiliateUrl'],
+    },
+  )
+  .refine(
+    (data) => {
+      const hasUrl = Boolean(data.affiliateUrl);
+      const hasText = Boolean(data.affiliateButtonText?.trim());
+      const hasImage = Boolean(data.affiliateImageUrl);
+      if (!hasUrl && !hasText && !hasImage) return true;
+      return hasUrl && hasImage;
+    },
+    {
+      message: 'Link de afiliado e imagem são obrigatórios quando há texto do botão.',
+      path: ['affiliateButtonText'],
+    },
+  )
+  .refine(
+    (data) => {
+      const hasUrl = Boolean(data.affiliateUrl);
+      const hasText = Boolean(data.affiliateButtonText?.trim());
+      const hasImage = Boolean(data.affiliateImageUrl);
+      if (!hasUrl && !hasText && !hasImage) return true;
+      return hasUrl && hasText;
+    },
+    {
+      message: 'Link de afiliado e texto do botão são obrigatórios quando há imagem.',
+      path: ['affiliateImageUrl'],
+    },
+  );
 
 export const postStatusInputSchema = z.object({
   status: postStatusSchema,

@@ -24,6 +24,8 @@ type CoverUploadProps = {
   value?: string | null;
   publicId?: string | null;
   onChange: (next: { url: string; publicId: string | null }) => void;
+  label?: string;
+  uploadButtonText?: string;
 };
 
 function resolvePreviewUrl(url?: string | null) {
@@ -38,7 +40,7 @@ function resolvePreviewUrl(url?: string | null) {
   }
 }
 
-export function CoverUpload({ value, publicId, onChange }: CoverUploadProps) {
+export function CoverUpload({ value, publicId, onChange, label = 'Imagem de capa', uploadButtonText = 'Enviar capa' }: CoverUploadProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
@@ -132,12 +134,12 @@ export function CoverUpload({ value, publicId, onChange }: CoverUploadProps) {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-semibold text-slate-900">Imagem de capa</p>
+          <p className="text-sm font-semibold text-slate-900">{label}</p>
           <p className="text-xs text-slate-500">JPG, PNG ou WebP até 5MB.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button type="button" className="admin-button-secondary" onClick={handlePick} disabled={uploading}>
-            {uploading ? 'Enviando...' : 'Enviar capa'}
+            {uploading ? 'Enviando...' : uploadButtonText}
           </button>
           {value ? (
             <button type="button" className="admin-button-secondary" onClick={handleClear} disabled={uploading}>

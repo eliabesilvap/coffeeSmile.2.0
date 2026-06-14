@@ -20,14 +20,23 @@ const postInputSchema = z.object({
   categoryId: z.string().trim().min(1),
   coverImageUrl: z.string().trim().min(1).nullable().optional(),
   coverImagePublicId: z.string().trim().min(1).nullable().optional(),
-  bookCoverImageUrl: z.string().trim().min(1).nullable().optional(),
   bookTitle: z.string().trim().min(1).nullable().optional(),
   bookAuthor: z.string().trim().min(1).nullable().optional(),
   bookTranslator: z.string().trim().min(1).nullable().optional(),
   bookYear: z.number().int().positive().nullable().optional(),
   bookPublisher: z.string().trim().min(1).nullable().optional(),
   bookPages: z.number().int().positive().nullable().optional(),
-  amazonUrl: z.string().url().nullable().optional(),
+  amazonUrl: z.preprocess(
+    (v) => (v === null || v === '' ? undefined : v),
+    z.string().regex(/^https?:\/\//, 'URL deve começar com http:// ou https://').url('URL inválida.').optional(),
+  ),
+  affiliateUrl: z.preprocess(
+    (v) => (v === null || v === '' ? undefined : v),
+    z.string().regex(/^https?:\/\//, 'URL deve começar com http:// ou https://').url('URL inválida.').optional(),
+  ),
+  affiliateButtonText: z.string().trim().min(1).nullable().optional(),
+  affiliateImageUrl: z.string().trim().min(1).nullable().optional(),
+  affiliateImagePublicId: z.string().trim().min(1).nullable().optional(),
   authorName: z.string().trim().min(1).nullable().optional(),
 });
 
@@ -64,7 +73,6 @@ function mapPostSummary(post: {
   excerpt: string;
   content?: string;
   coverImageUrl: string | null;
-  bookCoverImageUrl: string | null;
   bookTitle: string | null;
   bookAuthor: string | null;
   bookTranslator: string | null;
@@ -72,6 +80,9 @@ function mapPostSummary(post: {
   bookPublisher: string | null;
   bookPages: number | null;
   amazonUrl: string | null;
+  affiliateUrl: string | null;
+  affiliateButtonText: string | null;
+  affiliateImageUrl: string | null;
   author: string;
   authorName: string | null;
   categoryId: string;
@@ -89,7 +100,6 @@ function mapPostSummary(post: {
     slug: post.slug,
     excerpt: buildExcerpt(post.excerpt, post.content ?? ''),
     coverImageUrl: post.coverImageUrl ?? null,
-    bookCoverImageUrl: post.bookCoverImageUrl ?? null,
     bookTitle: post.bookTitle ?? null,
     bookAuthor: post.bookAuthor ?? null,
     bookTranslator: post.bookTranslator ?? null,
@@ -97,6 +107,9 @@ function mapPostSummary(post: {
     bookPublisher: post.bookPublisher ?? null,
     bookPages: post.bookPages ?? null,
     amazonUrl: post.amazonUrl ?? null,
+    affiliateUrl: post.affiliateUrl ?? null,
+    affiliateButtonText: post.affiliateButtonText ?? null,
+    affiliateImageUrl: post.affiliateImageUrl ?? null,
     author: post.author,
     authorName: post.authorName ?? null,
     categoryId: post.categoryId,
@@ -117,7 +130,6 @@ function mapPostDetail(post: {
   excerpt: string;
   content: string;
   coverImageUrl: string | null;
-  bookCoverImageUrl: string | null;
   bookTitle: string | null;
   bookAuthor: string | null;
   bookTranslator: string | null;
@@ -125,6 +137,9 @@ function mapPostDetail(post: {
   bookPublisher: string | null;
   bookPages: number | null;
   amazonUrl: string | null;
+  affiliateUrl: string | null;
+  affiliateButtonText: string | null;
+  affiliateImageUrl: string | null;
   author: string;
   authorName: string | null;
   categoryId: string;
@@ -191,7 +206,6 @@ export async function GET(
         excerpt: true,
         content: true,
         coverImageUrl: true,
-        bookCoverImageUrl: true,
         bookTitle: true,
         bookAuthor: true,
         bookTranslator: true,
@@ -199,6 +213,9 @@ export async function GET(
         bookPublisher: true,
         bookPages: true,
         amazonUrl: true,
+        affiliateUrl: true,
+        affiliateButtonText: true,
+        affiliateImageUrl: true,
         author: true,
         authorName: true,
         categoryId: true,
@@ -290,7 +307,6 @@ export async function PUT(
         categoryId: parsed.data.categoryId,
         coverImageUrl: parsed.data.coverImageUrl ?? null,
         coverImagePublicId: parsed.data.coverImagePublicId ?? null,
-        bookCoverImageUrl: parsed.data.bookCoverImageUrl ?? null,
         bookTitle: parsed.data.bookTitle ?? null,
         bookAuthor: parsed.data.bookAuthor ?? null,
         bookTranslator: parsed.data.bookTranslator ?? null,
@@ -298,6 +314,10 @@ export async function PUT(
         bookPublisher: parsed.data.bookPublisher ?? null,
         bookPages: parsed.data.bookPages ?? null,
         amazonUrl: parsed.data.amazonUrl ?? null,
+        affiliateUrl: parsed.data.affiliateUrl ?? null,
+        affiliateButtonText: parsed.data.affiliateButtonText ?? null,
+        affiliateImageUrl: parsed.data.affiliateImageUrl ?? null,
+        affiliateImagePublicId: parsed.data.affiliateImagePublicId ?? null,
         ...(parsed.data.authorName !== undefined
           ? {
               authorName: authorName || null,

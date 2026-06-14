@@ -3,13 +3,13 @@ import Script from 'next/script';
 import Image from 'next/image';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
+import { AffiliateCta } from '@/components/AffiliateCta';
 import { BookBox } from '@/components/BookBox';
-import { BookTechnicalSheet } from '@/components/BookTechnicalSheet';
 import { LayoutShell } from '@/components/LayoutShell';
 import { PageHero } from '@/components/PageHero';
 import { PostShare } from '@/components/PostShare';
 import { Sidebar } from '@/components/Sidebar';
-import { resolveBookCoverSource, resolvePostCoverImage } from '@/lib/post-images';
+import { resolvePostCoverImage } from '@/lib/post-images';
 import { getCategories, getPost, getPosts } from '@/lib/api';
 import { deriveCategoriesFromPosts } from '@/lib/categories';
 import { formatDate } from '@/lib/format';
@@ -59,6 +59,8 @@ export async function generateMetadata({
         locale: 'pt_BR',
         url: canonical,
         images: ogImages,
+        publishedTime: post.publishedAt,
+        authors: post.authorName ? [post.authorName] : undefined,
       },
       twitter: {
         card: 'summary_large_image',
@@ -87,9 +89,6 @@ export default async function PostPage({ params }: { params: { slug: string } })
   const postResponse = await getPost(params.slug);
   const post = postResponse.data;
   const coverImage = resolvePostCoverImage(post, 'hero') || '/images/cover-default.svg';
-  const bookCoverSource = resolveBookCoverSource(post);
-  const bookCover =
-    bookCoverSource ?? resolvePostCoverImage(post, 'hero') ?? '/images/cover-default.svg';
   const authorName = post.authorName?.trim() || post.author?.trim() || 'CoffeeSmile';
   const canonical = absoluteUrl(postUrl(post.slug));
   const seoDescription =
@@ -131,10 +130,9 @@ export default async function PostPage({ params }: { params: { slug: string } })
     image: [jsonLdImage],
     url: canonical,
     mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
-    author: {
-      '@type': 'Organization',
-      name: 'CoffeeSmile',
-    },
+    author: post.authorName
+      ? { '@type': 'Person', name: post.authorName }
+      : { '@type': 'Organization', name: 'CoffeeSmile' },
     publisher: {
       '@type': 'Organization',
       name: 'CoffeeSmile',
@@ -185,19 +183,17 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 {post.content}
               </ReactMarkdown>
             </div>
-            {!post.bookTitle && (
-              <BookTechnicalSheet
-                author={post.bookAuthor}
-                translator={post.bookTranslator}
-                publisher={post.bookPublisher}
-                year={post.bookYear}
-                pages={post.bookPages}
+            {post.affiliateUrl && post.affiliateButtonText && post.affiliateImageUrl ? (
+              <AffiliateCta
+                url={post.affiliateUrl}
+                buttonText={post.affiliateButtonText}
+                imageUrl={post.affiliateImageUrl}
               />
-            )}
+            ) : null}
             <BookBox
               title={post.bookTitle}
               amazonUrl={post.amazonUrl}
-              coverImageUrl={bookCover}
+              coverImageUrl={coverImage}
               author={post.bookAuthor}
               translator={post.bookTranslator}
               year={post.bookYear}

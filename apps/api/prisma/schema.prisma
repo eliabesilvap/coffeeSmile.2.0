@@ -20,30 +20,33 @@ model Category {
 }
 
 model Post {
-  id          String     @id @default(cuid())
-  title       String
-  slug        String     @unique
-  excerpt     String
-  content     String
-  coverImageUrl      String?
-  coverImagePublicId String?
-  bookCoverImageUrl  String?
-  bookTitle   String?
-  bookAuthor  String?
-  bookTranslator String?
-  bookYear    Int?
-  bookPublisher String?
-  bookPages   Int?
-  amazonUrl   String?
-  author      String
-  authorName  String?
-  authorSlug  String?
-  publishedAt DateTime
-  readingTime Int
-  tags        String[]
-  status      PostStatus @default(draft)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id                     String     @id @default(cuid())
+  title                  String
+  slug                   String     @unique
+  excerpt                String
+  content                String
+  coverImageUrl          String?
+  coverImagePublicId     String?
+  bookTitle              String?
+  bookAuthor             String?
+  bookTranslator         String?
+  bookYear               Int?
+  bookPublisher          String?
+  bookPages              Int?
+  amazonUrl              String?
+  affiliateUrl           String?
+  affiliateButtonText    String?
+  affiliateImageUrl      String?
+  affiliateImagePublicId String?
+  author                 String
+  authorName             String?
+  authorSlug             String?
+  publishedAt            DateTime
+  readingTime            Int
+  tags                   String[]
+  status                 PostStatus @default(draft)
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
 
   category   Category @relation(fields: [categoryId], references: [id])
   categoryId String

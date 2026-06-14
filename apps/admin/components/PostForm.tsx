@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import { slugify } from '@/lib/slug';
+import { postInputSchema } from '@/lib/validation';
 import { CoverUpload } from './CoverUpload';
 
 export type CategoryOption = {
@@ -29,6 +30,10 @@ export type PostFormData = {
   bookPublisher?: string | null;
   bookPages?: number | null;
   amazonUrl?: string | null;
+  affiliateUrl?: string | null;
+  affiliateButtonText?: string | null;
+  affiliateImageUrl?: string | null;
+  affiliateImagePublicId?: string | null;
   authorName?: string | null;
 };
 
@@ -58,9 +63,16 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
   const [bookPublisher, setBookPublisher] = useState(initialPost?.bookPublisher ?? '');
   const [bookPages, setBookPages] = useState<number | null>(initialPost?.bookPages ?? null);
   const [amazonUrl, setAmazonUrl] = useState(initialPost?.amazonUrl ?? '');
+  const [affiliateUrl, setAffiliateUrl] = useState(initialPost?.affiliateUrl ?? '');
+  const [affiliateButtonText, setAffiliateButtonText] = useState(initialPost?.affiliateButtonText ?? '');
+  const [affiliateImageUrl, setAffiliateImageUrl] = useState<string | null>(initialPost?.affiliateImageUrl ?? null);
+  const [affiliateImagePublicId, setAffiliateImagePublicId] = useState<string | null>(
+    initialPost?.affiliateImagePublicId ?? null,
+  );
   const [authorName, setAuthorName] = useState(initialPost?.authorName ?? '');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const excerptMissing = !excerpt.trim();
@@ -104,27 +116,9 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
   async function submitForm(nextStatus: PostFormData['status']) {
     setError('');
     setMessage('');
+    setFieldErrors({});
 
     const normalizedSlug = slugify(slug);
-    if (!title.trim()) {
-      setError('Título é obrigatório.');
-      return;
-    }
-    if (!normalizedSlug) {
-      setError('Slug é obrigatório.');
-      return;
-    }
-    if (!content.trim()) {
-      setError('Conteúdo é obrigatório.');
-      return;
-    }
-    if (!categoryId) {
-      setError('Categoria é obrigatória.');
-      return;
-    }
-
-    setLoading(true);
-    setStatus(nextStatus);
 
     const payload = {
       title,
@@ -143,8 +137,26 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
       bookPublisher: bookPublisher?.trim() || null,
       bookPages,
       amazonUrl: amazonUrl?.trim() || null,
+      affiliateUrl: affiliateUrl?.trim() || null,
+      affiliateButtonText: affiliateButtonText?.trim() || null,
+      affiliateImageUrl: affiliateImageUrl?.trim() || null,
+      affiliateImagePublicId: affiliateImagePublicId?.trim() || null,
       authorName: authorName?.trim() || null,
     };
+
+    const validated = postInputSchema.safeParse(payload);
+    if (!validated.success) {
+      const flat = validated.error.flatten();
+      const errs: Record<string, string> = {};
+      for (const [field, messages] of Object.entries(flat.fieldErrors)) {
+        if (messages?.[0]) errs[field] = messages[0];
+      }
+      setFieldErrors(errs);
+      return;
+    }
+
+    setLoading(true);
+    setStatus(nextStatus);
 
     const endpoint = initialPost?.id ? `/api/posts/${initialPost.id}` : '/api/posts';
     const method = initialPost?.id ? 'PUT' : 'POST';
@@ -196,6 +208,7 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
               onChange={(event) => setTitle(event.target.value)}
               required
             />
+            {fieldErrors.title ? <p className="mt-1 text-xs text-red-600">{fieldErrors.title}</p> : null}
           </div>
           <div>
             <label className="admin-label" htmlFor="slug">
@@ -211,6 +224,7 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
               }}
               required
             />
+            {fieldErrors.slug ? <p className="mt-1 text-xs text-red-600">{fieldErrors.slug}</p> : null}
           </div>
           <div>
             <div className="flex items-center justify-between gap-3">
@@ -273,6 +287,7 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
                 </option>
               ))}
             </select>
+            {fieldErrors.categoryId ? <p className="mt-1 text-xs text-red-600">{fieldErrors.categoryId}</p> : null}
           </div>
           <div>
             <label className="admin-label" htmlFor="tags">
@@ -399,6 +414,54 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
                   onChange={(event) => setAmazonUrl(event.target.value)}
                   placeholder="https://www.amazon.com.br/..."
                 />
+                {fieldErrors.amazonUrl ? <p className="mt-1 text-xs text-red-600">{fieldErrors.amazonUrl}</p> : null}
+              </div>
+            </div>
+          </div>
+          <div className="space-y-4 rounded-2xl border border-slate-200 p-4">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900">Link de afiliado (opcional)</h3>
+              <p className="text-xs text-slate-500">Se preenchido, aparece como CTA antes do BookBox no post.</p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="admin-label" htmlFor="affiliateUrl">
+                  LINK DE AFILIADO
+                </label>
+                <input
+                  id="affiliateUrl"
+                  className="admin-input"
+                  value={affiliateUrl}
+                  onChange={(event) => setAffiliateUrl(event.target.value)}
+                  placeholder="https://..."
+                />
+                {fieldErrors.affiliateUrl ? <p className="mt-1 text-xs text-red-600">{fieldErrors.affiliateUrl}</p> : null}
+              </div>
+              <div className="sm:col-span-2">
+                <label className="admin-label" htmlFor="affiliateButtonText">
+                  TEXTO DO BOTÃO
+                </label>
+                <input
+                  id="affiliateButtonText"
+                  className="admin-input"
+                  value={affiliateButtonText}
+                  onChange={(event) => setAffiliateButtonText(event.target.value)}
+                  placeholder='Ex.: "Comprar na Amazon"'
+                />
+                {fieldErrors.affiliateButtonText ? <p className="mt-1 text-xs text-red-600">{fieldErrors.affiliateButtonText}</p> : null}
+              </div>
+              <div className="sm:col-span-2">
+                <CoverUpload
+                  value={affiliateImageUrl}
+                  publicId={affiliateImagePublicId}
+                  label="Imagem do produto"
+                  uploadButtonText="Enviar imagem"
+                  onChange={(next) => {
+                    setAffiliateImageUrl(next.url || null);
+                    setAffiliateImagePublicId(next.publicId);
+                  }}
+                />
+                {fieldErrors.affiliateImageUrl ? <p className="mt-1 text-xs text-red-600">{fieldErrors.affiliateImageUrl}</p> : null}
               </div>
             </div>
           </div>
@@ -413,6 +476,7 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
               onChange={(event) => setContent(event.target.value)}
               required
             />
+            {fieldErrors.content ? <p className="mt-1 text-xs text-red-600">{fieldErrors.content}</p> : null}
           </div>
         </div>
 
@@ -453,7 +517,7 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
           </button>
         </div>
 
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? <p role="alert" aria-live="polite" className="text-sm text-red-600">{error}</p> : null}
         {message ? <p className="text-sm text-emerald-700">{message}</p> : null}
       </form>
 
