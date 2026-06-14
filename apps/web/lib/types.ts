@@ -20,6 +20,7 @@ export type PostSummary = {
   bookPages?: number | null;
   amazonUrl?: string | null;
   affiliateUrl?: string | null;
+  affiliateTitle?: string | null;
   affiliateButtonText?: string | null;
   affiliateImageUrl?: string | null;
   author: string;

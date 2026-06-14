@@ -31,6 +31,7 @@ export type PostFormData = {
   bookPages?: number | null;
   amazonUrl?: string | null;
   affiliateUrl?: string | null;
+  affiliateTitle?: string | null;
   affiliateButtonText?: string | null;
   affiliateImageUrl?: string | null;
   affiliateImagePublicId?: string | null;
@@ -64,6 +65,7 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
   const [bookPages, setBookPages] = useState<number | null>(initialPost?.bookPages ?? null);
   const [amazonUrl, setAmazonUrl] = useState(initialPost?.amazonUrl ?? '');
   const [affiliateUrl, setAffiliateUrl] = useState(initialPost?.affiliateUrl ?? '');
+  const [affiliateTitle, setAffiliateTitle] = useState(initialPost?.affiliateTitle ?? '');
   const [affiliateButtonText, setAffiliateButtonText] = useState(initialPost?.affiliateButtonText ?? '');
   const [affiliateImageUrl, setAffiliateImageUrl] = useState<string | null>(initialPost?.affiliateImageUrl ?? null);
   const [affiliateImagePublicId, setAffiliateImagePublicId] = useState<string | null>(
@@ -138,6 +140,7 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
       bookPages,
       amazonUrl: amazonUrl?.trim() || null,
       affiliateUrl: affiliateUrl?.trim() || null,
+      affiliateTitle: affiliateTitle?.trim() || null,
       affiliateButtonText: affiliateButtonText?.trim() || null,
       affiliateImageUrl: affiliateImageUrl?.trim() || null,
       affiliateImagePublicId: affiliateImagePublicId?.trim() || null,
@@ -436,6 +439,19 @@ export function PostForm({ categories, initialPost }: PostFormProps) {
                   placeholder="https://..."
                 />
                 {fieldErrors.affiliateUrl ? <p className="mt-1 text-xs text-red-600">{fieldErrors.affiliateUrl}</p> : null}
+              </div>
+              <div className="sm:col-span-2">
+                <label className="admin-label" htmlFor="affiliateTitle">
+                  TÍTULO DO PRODUTO
+                </label>
+                <input
+                  id="affiliateTitle"
+                  className="admin-input"
+                  value={affiliateTitle}
+                  onChange={(event) => setAffiliateTitle(event.target.value)}
+                  placeholder='Ex.: "Aeropress Coffee Maker"'
+                />
+                {fieldErrors.affiliateTitle ? <p className="mt-1 text-xs text-red-600">{fieldErrors.affiliateTitle}</p> : null}
               </div>
               <div className="sm:col-span-2">
                 <label className="admin-label" htmlFor="affiliateButtonText">

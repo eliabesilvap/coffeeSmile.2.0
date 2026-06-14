@@ -33,6 +33,10 @@ export const postInputSchema = z
       (value) => (value === null || value === '' ? undefined : value),
       z.string().regex(/^https?:\/\//, 'URL deve começar com http:// ou https://').url('URL inválida.').optional(),
     ),
+    affiliateTitle: z.preprocess(
+      (value) => (value === null || value === '' ? undefined : value),
+      z.string().min(1, 'Título inválido.').max(150, 'Título demasiado longo.').optional(),
+    ),
     affiliateButtonText: z.string().trim().min(1, 'Texto do botão inválido.').optional().nullable(),
     affiliateImageUrl: z.preprocess(
       (value) => (value === null || value === '' ? undefined : value),
@@ -47,39 +51,56 @@ export const postInputSchema = z
   .refine(
     (data) => {
       const hasUrl = Boolean(data.affiliateUrl);
+      const hasTitle = Boolean(data.affiliateTitle?.trim());
       const hasText = Boolean(data.affiliateButtonText?.trim());
       const hasImage = Boolean(data.affiliateImageUrl);
-      if (!hasUrl && !hasText && !hasImage) return true;
-      return hasText && hasImage;
+      if (!hasUrl && !hasTitle && !hasText && !hasImage) return true;
+      return hasTitle && hasText && hasImage;
     },
     {
-      message: 'Texto do botão e imagem são obrigatórios quando há link de afiliado.',
+      message: 'Título, texto do botão e imagem são obrigatórios quando há link de afiliado.',
       path: ['affiliateUrl'],
     },
   )
   .refine(
     (data) => {
       const hasUrl = Boolean(data.affiliateUrl);
+      const hasTitle = Boolean(data.affiliateTitle?.trim());
       const hasText = Boolean(data.affiliateButtonText?.trim());
       const hasImage = Boolean(data.affiliateImageUrl);
-      if (!hasUrl && !hasText && !hasImage) return true;
-      return hasUrl && hasImage;
+      if (!hasUrl && !hasTitle && !hasText && !hasImage) return true;
+      return hasUrl && hasText && hasImage;
     },
     {
-      message: 'Link de afiliado e imagem são obrigatórios quando há texto do botão.',
+      message: 'Link de afiliado, texto do botão e imagem são obrigatórios quando há título.',
+      path: ['affiliateTitle'],
+    },
+  )
+  .refine(
+    (data) => {
+      const hasUrl = Boolean(data.affiliateUrl);
+      const hasTitle = Boolean(data.affiliateTitle?.trim());
+      const hasText = Boolean(data.affiliateButtonText?.trim());
+      const hasImage = Boolean(data.affiliateImageUrl);
+      if (!hasUrl && !hasTitle && !hasText && !hasImage) return true;
+      return hasUrl && hasTitle && hasImage;
+    },
+    {
+      message: 'Link de afiliado, título e imagem são obrigatórios quando há texto do botão.',
       path: ['affiliateButtonText'],
     },
   )
   .refine(
     (data) => {
       const hasUrl = Boolean(data.affiliateUrl);
+      const hasTitle = Boolean(data.affiliateTitle?.trim());
       const hasText = Boolean(data.affiliateButtonText?.trim());
       const hasImage = Boolean(data.affiliateImageUrl);
-      if (!hasUrl && !hasText && !hasImage) return true;
-      return hasUrl && hasText;
+      if (!hasUrl && !hasTitle && !hasText && !hasImage) return true;
+      return hasUrl && hasTitle && hasText;
     },
     {
-      message: 'Link de afiliado e texto do botão são obrigatórios quando há imagem.',
+      message: 'Link de afiliado, título e texto do botão são obrigatórios quando há imagem.',
       path: ['affiliateImageUrl'],
     },
   );

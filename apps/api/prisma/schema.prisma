@@ -35,6 +35,7 @@ model Post {
   bookPages              Int?
   amazonUrl              String?
   affiliateUrl           String?
+  affiliateTitle         String?
   affiliateButtonText    String?
   affiliateImageUrl      String?
   affiliateImagePublicId String?

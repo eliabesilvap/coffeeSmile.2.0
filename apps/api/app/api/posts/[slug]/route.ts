@@ -34,6 +34,7 @@ const postInputSchema = z.object({
     (v) => (v === null || v === '' ? undefined : v),
     z.string().regex(/^https?:\/\//, 'URL deve começar com http:// ou https://').url('URL inválida.').optional(),
   ),
+  affiliateTitle: z.string().trim().min(1).nullable().optional(),
   affiliateButtonText: z.string().trim().min(1).nullable().optional(),
   affiliateImageUrl: z.string().trim().min(1).nullable().optional(),
   affiliateImagePublicId: z.string().trim().min(1).nullable().optional(),
@@ -81,6 +82,7 @@ function mapPostSummary(post: {
   bookPages: number | null;
   amazonUrl: string | null;
   affiliateUrl: string | null;
+  affiliateTitle: string | null;
   affiliateButtonText: string | null;
   affiliateImageUrl: string | null;
   author: string;
@@ -108,6 +110,7 @@ function mapPostSummary(post: {
     bookPages: post.bookPages ?? null,
     amazonUrl: post.amazonUrl ?? null,
     affiliateUrl: post.affiliateUrl ?? null,
+    affiliateTitle: post.affiliateTitle ?? null,
     affiliateButtonText: post.affiliateButtonText ?? null,
     affiliateImageUrl: post.affiliateImageUrl ?? null,
     author: post.author,
@@ -138,6 +141,7 @@ function mapPostDetail(post: {
   bookPages: number | null;
   amazonUrl: string | null;
   affiliateUrl: string | null;
+  affiliateTitle: string | null;
   affiliateButtonText: string | null;
   affiliateImageUrl: string | null;
   author: string;
@@ -214,6 +218,7 @@ export async function GET(
         bookPages: true,
         amazonUrl: true,
         affiliateUrl: true,
+        affiliateTitle: true,
         affiliateButtonText: true,
         affiliateImageUrl: true,
         author: true,
@@ -315,6 +320,7 @@ export async function PUT(
         bookPages: parsed.data.bookPages ?? null,
         amazonUrl: parsed.data.amazonUrl ?? null,
         affiliateUrl: parsed.data.affiliateUrl ?? null,
+        affiliateTitle: parsed.data.affiliateTitle ?? null,
         affiliateButtonText: parsed.data.affiliateButtonText ?? null,
         affiliateImageUrl: parsed.data.affiliateImageUrl ?? null,
         affiliateImagePublicId: parsed.data.affiliateImagePublicId ?? null,

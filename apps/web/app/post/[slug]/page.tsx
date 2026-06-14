@@ -183,9 +183,10 @@ export default async function PostPage({ params }: { params: { slug: string } })
                 {post.content}
               </ReactMarkdown>
             </div>
-            {post.affiliateUrl && post.affiliateButtonText && post.affiliateImageUrl ? (
+            {post.affiliateUrl && post.affiliateTitle && post.affiliateButtonText && post.affiliateImageUrl ? (
               <AffiliateCta
                 url={post.affiliateUrl}
+                title={post.affiliateTitle}
                 buttonText={post.affiliateButtonText}
                 imageUrl={post.affiliateImageUrl}
               />

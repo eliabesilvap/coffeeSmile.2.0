@@ -31,6 +31,7 @@ type PostResponse = {
     bookPages?: number | null;
     amazonUrl?: string | null;
     affiliateUrl?: string | null;
+    affiliateTitle?: string | null;
     affiliateButtonText?: string | null;
     affiliateImageUrl?: string | null;
     affiliateImagePublicId?: string | null;
@@ -123,6 +124,7 @@ export default async function EditPostPage({ params }: { params: { id: string } 
           bookPages: post.bookPages,
           amazonUrl: post.amazonUrl,
           affiliateUrl: post.affiliateUrl,
+          affiliateTitle: post.affiliateTitle,
           affiliateButtonText: post.affiliateButtonText,
           affiliateImageUrl: post.affiliateImageUrl,
           affiliateImagePublicId: post.affiliateImagePublicId,

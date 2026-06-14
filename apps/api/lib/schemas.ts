@@ -22,6 +22,10 @@ export const postSummarySchema = z.object({
   bookPages: z.number().int().nullable().optional(),
   amazonUrl: z.string().regex(/^https?:\/\//, 'URL deve começar com http:// ou https://').url('URL inválida.').nullable().optional(),
   affiliateUrl: z.string().regex(/^https?:\/\//, 'URL deve começar com http:// ou https://').url('URL inválida.').nullable().optional(),
+  affiliateTitle: z.preprocess(
+    (v) => (v === null || v === '' ? undefined : v),
+    z.string().min(1).nullable().optional(),
+  ),
   affiliateButtonText: z.string().min(1).nullable().optional(),
   affiliateImageUrl: z.preprocess(
     (v) => (v === null || v === '' ? undefined : v),

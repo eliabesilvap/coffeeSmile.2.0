@@ -29,6 +29,7 @@ const basePost = {
   bookPages: null,
   amazonUrl: null,
   affiliateUrl: null,
+  affiliateTitle: null,
   affiliateButtonText: null,
   affiliateImageUrl: null,
   author: 'Autor 1',
