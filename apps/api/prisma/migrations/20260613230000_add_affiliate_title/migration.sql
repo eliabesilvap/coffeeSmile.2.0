@@ -1,1 +1,1 @@
-ALTER TABLE "Post" ADD COLUMN "affiliateTitle" TEXT;
+ALTER TABLE "Post" ADD COLUMN IF NOT EXISTS "affiliateTitle" TEXT;
