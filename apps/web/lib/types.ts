@@ -12,7 +12,6 @@ export type PostSummary = {
   excerpt: string;
   content?: string;
   coverImageUrl?: string | null;
-  bookCoverImageUrl?: string | null;
   bookTitle?: string | null;
   bookAuthor?: string | null;
   bookTranslator?: string | null;
@@ -20,6 +19,10 @@ export type PostSummary = {
   bookPublisher?: string | null;
   bookPages?: number | null;
   amazonUrl?: string | null;
+  affiliateUrl?: string | null;
+  affiliateTitle?: string | null;
+  affiliateButtonText?: string | null;
+  affiliateImageUrl?: string | null;
   author: string;
   authorName?: string | null;
   categoryId?: string;

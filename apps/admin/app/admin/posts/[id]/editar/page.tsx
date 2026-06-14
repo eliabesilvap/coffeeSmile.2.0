@@ -30,6 +30,11 @@ type PostResponse = {
     bookPublisher?: string | null;
     bookPages?: number | null;
     amazonUrl?: string | null;
+    affiliateUrl?: string | null;
+    affiliateTitle?: string | null;
+    affiliateButtonText?: string | null;
+    affiliateImageUrl?: string | null;
+    affiliateImagePublicId?: string | null;
     authorName?: string | null;
   };
 };
@@ -39,7 +44,6 @@ async function fetchCategories() {
   if (!baseUrl) {
     throw new Error('NEXT_PUBLIC_API_URL ausente. Define a URL da API externa.');
   }
-
   try {
     const response = await fetch(new URL('categories', baseUrl), {
       cache: 'no-store',
@@ -64,22 +68,18 @@ async function fetchPost(id: string) {
   if (!baseUrl) {
     throw new Error('NEXT_PUBLIC_API_URL ausente. Define a URL da API externa.');
   }
-
   const secret = process.env.ADMIN_API_SECRET;
   const response = await fetch(new URL(`posts/${id}`, baseUrl), {
     cache: 'no-store',
     next: { revalidate: 0 },
     headers: secret ? { Authorization: `Bearer ${secret}` } : {},
   });
-
   if (response.status === 404) {
     return null;
   }
-
   if (!response.ok) {
     throw new Error(`Falha ao carregar post (${response.status}).`);
   }
-
   const payload = (await response.json()) as PostResponse;
   return payload.data ?? null;
 }
@@ -123,6 +123,11 @@ export default async function EditPostPage({ params }: { params: { id: string } 
           bookPublisher: post.bookPublisher,
           bookPages: post.bookPages,
           amazonUrl: post.amazonUrl,
+          affiliateUrl: post.affiliateUrl,
+          affiliateTitle: post.affiliateTitle,
+          affiliateButtonText: post.affiliateButtonText,
+          affiliateImageUrl: post.affiliateImageUrl,
+          affiliateImagePublicId: post.affiliateImagePublicId,
           authorName: post.authorName,
         }}
       />
